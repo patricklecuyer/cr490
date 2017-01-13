@@ -72,7 +72,7 @@ reveal_config:
     |5-6| Attaques|
     |7-10| Application en entreprise|
     |11 | Infonuagique et Présentation Google|
-    |12| Étude de case|
+    |12| Étude de cas|
     |13| Révision|
   </section>
   <section data-markdown>
@@ -127,6 +127,7 @@ Sources: https://github.com/patricklecuyer/cr490/
 Les *pull requests* sont la bienvenue.  Les contrinutions des étudiants seront mentionné dans les future version des cours.
 </section>
 <section data-markdown>
+
 ## Slack
 
 Plateforme de communication et de collaboration.
@@ -144,7 +145,53 @@ Utiliser votre addresse @polymtl.ca pour vous enregistrer à Slack
 <section data-markdown>
 #Demo Slack
 </section>
+<section data-markdown>
+##Vagrant + Virtualbox
+Vagrant est un outil pour construire et distribuer des environnements virtualisés reproductibles.  Cet outil sera utilisé pour distribuer les environnements de laboratoire utilisés dans le cadre du cours.
+
+ Vagrant requiert que l'hyperviseur Virtualbox soit présent sur le système
 </section>
+<section data-markdown>
+## Installation de virtualbox
+1. Télécharger la dernière version de Virtualbox sur https://www.virtualbox.org/wiki/Downloads
+2. Installer Virtualbox sur votre système.  Ceci demandera un redémarrage.
+3. Assurez-vous que Virtualbox démarre bien:
+
+![virtualbox](images/virtualbox.png)
+</section>
+<section data-markdown>
+## Installation de Vagrant
+1. Téléchargez Vagrant sur www.vagrantup.com
+2. Installez Vagrant sur votre système
+3. Pour les utilisateurs **Windows** seulement, télécharger le fichier ssh.zip du site [Moodle](http://moodle.polymtl.ca) et extraire son contenu dans le répertoire `C:\Hasicorp\vagrant\bin`
+4. Créez un répertoire pour le laboratoire du Cours 1.  Un nouveau répertoire devra être créé pour chaque cours contenant un laboratoire
+5. Téléchargez le fichier Vagrantfile dans la section Cours 1 du site Moodle du cours et déposez-le dans ce répertoire
+
+</section>
+<section data-markdown>
+## Essais
+3. Ouvrez une session ligne de commande et naviguer vers ce répertoire
+4. Entrez la commande `vagrant up`
+5. La machine virtuelle devrais être téléchargée et démarrer
+6. Entrez la commande `vagrant ssh` pour ouvrir une session vers la machine virtuelle
+7. Fermez la session avec la commande `exit`
+8. Détruisez la machine virtuelle avec la commande `vagrant destroy`
+
+
+</section>
+<section data-markdown>
+#Demo Vagrant + Virtualbox
+</section>
+<section data-markdown>
+##Commandes Vagrant utiles
+- `vagrant up`: démarrez les machines virtuelles
+- `vagrant ssh [nom]`: Ouvre une session vers la machine \[nom\]
+- `vagrant destroy`: Détruis les machines virtuelles
+- `vagrant suspend`: Interrompt l'exécution des machines virtuelles sans les détruire
+<!--.slide: data-transition="zoom" -->
+</section>
+</section>
+
 </section>
 <section>
   <section data-markdown>
