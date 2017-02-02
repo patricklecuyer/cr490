@@ -1,6 +1,6 @@
 ---
-title: Cours 3 - Bases mathématiques
-description: Introduction aux bases mathématiques
+title: Cours 3 - Gestion des clés
+description: Introduction a la gestion des clés
 theme: night
 date: 2017-1-19
 reveal_config:
@@ -16,49 +16,132 @@ reveal_config:
 </section>
 <section>
   <section data-markdown>
-    # Logique booléenne
+    # Qu'est-ce que la gestion des clés?
   </section>
   <section data-markdown>
-    ## Variable booléenne
+    ## Définition
+
+    La gestion des clé est l'ensemble des techniques qui permettent de controller l'accès et protéger les clés cryptographiques (et autres secrets).
   </section>
   <section data-markdown>
-    ## Opérateurs booléens
-  </section>
-  <section data-markdown>
-    ## Utilisation en cryptographie
-  </section>
-</section>
-<section>
-  <section data-markdown>
-    # Complexité de calcul
-  </section>
-  <section data-markdown>
-    ## Concept de complexité
-  </section>
-  <section data-markdown>
-    ## Classes de complexité
-  </section>
-  <section data-markdown>
-    ## P vs NP
-  </section>
-  <section data-markdown>
-    ## Exemples
-  </section>
-  <section data-markdown>
-    ## Importance en cryptographie
+    ## Questions à se poser
+
+    * Qui peux voir la clé?
+    * Comment comprendre ou les clé ssont utilisées?
+    * Dans quel cas est-ce qu'un individu peut avoir accès aux données non-chiffrée?
+    * De quelle manière est-ce que le chiffrement amméliore ma posture de sécurité?
   </section>
 </section>
 <section>
   <section data-markdown>
-    # Génération de nombres pseudo-aléatoires
+    # Techniques de gestion des clés
   </section>
   <section data-markdown>
-    ## Concepts
+    ## Cryptopériode
+
+    La définition d'une cryptopériode selon la norme 800-57 du NIST est:
+
+    **A cryptoperiod is the time span during which a specific key is authorized for use by legitimate
+entities, or the keys for a given system will remain in effect**
+
   </section>
   <section data-markdown>
-    ## Exemples
+    ## Choix de cryptopériode (NIST 800-57)
+
+    * Limits the amount of information protected by a given key that is available for
+cryptanalysis,
+    * Limits the amount of exposure if a single key is compromised,
+    *  Limits the use of a particular algorithm (e.g., to its estimated effective lifetime),
+    *  Limits the time available for attempts to penetrate physical, procedural, and logical
+access mechanisms that protect a key from unauthorized disclosure,
+    *  Limits the period within which information may be compromised by inadvertent
+disclosure of keying material to unauthorized entities, and
+    *  Limits the time available for computationally intensive cryptanalytic attacks (in
+applications where long-term key protection is not required).
   </section>
   <section data-markdown>
-    ## Importance en cryptographie
+    ## Rotation des clés
+
+    Une politique de rotation des clés définie comment une organisation s'assure que les clés ne dépassent pas les cryptopériodes définie.  Normalement, cette politique assure que les clés seront changés régulièrement, à un intervalle plus court que la cryptopériode.
+  </section>
+  <section data-markdown>
+    ## Gestion des versions
+
+    Une des problématiques communes avec la rotation des clés est la complexité liée à la gestion des données déjà chifrées.  Rechiffrer l'ensemble des données lors de la rotation d'une clé est couteux et souvent irréaliste.  Afin de contourner cette problématique, un mécanisme des gestion des versions est souvent utilisé.
+  </section>
+  <section data-markdown>
+    ## Mécanisme de gestion des versions
+
+    1. Lorsqu'une clée est générée, un numéro de version est assigné à cette clé.
+    2. Lorsqu'une requète est recue pour chiffrer des données, la clé la plus récente est utilisée, et le numéro de version de la clé est enregistré avec les données chiffré.
+    3. Lorsqu'une requète est recue pour déchiffrer des données, la version de la clé référencée est utilisée pour déchiffrer.
+    4. Lorsque la cryptopériode d'une version de clé est échue, les données chiffrées avec cette clé sont rechiffré avec la version la plus récente, et la clé échue est détruite.
+
+  </section>
+  <section data-markdown>
+    ## Exemple de gestion des versions
+  </section>
+  <section data-markdown>
+    ## Révocation
+
+  </section>
+  <section data-markdown>
+    ## Stockage
+
+    Comme les clés sont critiques à la protection des donnée, bien stocker les clé est très important.  Les concepts autour du stockage des clé sont:
+
+    * Authentification
+    * Authorisation
+    * Audit
+  </section>
+
+  <section data-markdown>
+    ## HSM
+
+    Un HSM est un module physique qui permet le stockage sécuritaire des clé. Le HSM est configuré de manière à ce que les clés ne puissent pas être exporté, et que toute tentative de physiquement voler les clés détruise le matériel.
+  </section>
+  <section data-markdown>
+    ## Utilisation d'un HSM
+
+    Un HSM sera utilisé pour procéder à des opérations cryptographique.  Ainsi, au lieu d'accèder une clé, une requète sera faite au HSM pour chiffrer ou déchiffrer des données, sans que la clé soit visible à l'Extérieur de l'appareil.
+  </section>
+</section>
+<section>
+  <section data-markdown>
+    # Encryption par enveloppe
+  </section>
+  <section data-markdown>
+    ## Définition
+
+    L'encryption par enveloppe est une méthode qui permet de définir une hierachie de clé.  Ce type de hiérarchie permet de limiter l'impact d'une clé compromise, facilite la rotation et permet d'utiliser plus facilement les équipements physiques tels que les HSM
+  </section>
+  <section data-markdown>
+    ## Processus de chiffrement
+
+    1. Une clé de chiffrement des clés (KEK) est générée.  Cette clé est conservée à un endroit sécuritaire (souvent, un HSM)
+    2. Lorsque des données doivent être chiffrées, une clé de chiffrement de données (DEK) est générée.
+    3. La clé de chiffrement des donnée est utilisée pour chiffrer les données.
+    4. La clé de chiffrement des donnée est envoyé au HSM (ou autre module cryptographique) pour être chiffrée avec la KEK.
+    5. La DEK chiffrée est enregistreée avec les données.
+  </section>
+  <section data-markdown>
+    ## Processus de chiffrement
+
+    1. Lorsque des données doivent être chiffrées, la clé de chiffrement des données stockées avec les donnée elle-même est extraite.
+    2. La clé de chiffrement des donnée est envoyé eau HSM (ou autre module cryptographique) pour être déchiffrée avec la KEK.
+    3. La clé de chiffrement des donnée est utilisée pour déchiffrer les données.
+  </section>
+  <section data-markdown>
+    ## Exemple
+
+    1. Lorsque des données doivent être chiffrées, la clé de chiffrement des données stockées avec les donnée elle-même est extraite.
+    2. La clé de chiffrement des donnée est envoyé eau HSM (ou autre module cryptographique) pour être déchiffrée avec la KEK.
+    3. La clé de chiffrement des donnée est utilisée pour déchiffrer les données.
+  </section>
+</section>
+
+<section>
+  <section data-markdown>
+    # Démo d'outil de gestion des clés
   </section>
 </section>
