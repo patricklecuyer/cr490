@@ -77,7 +77,7 @@ reveal_config:
   </section>
   <section data-markdown>
   ## Devoirs
-  5 courts quiz à choix de réponse, donné 1 semaine avant la date de remise.  Ces devoirs correspondent aux sections importantes du cours
+  5 courts quiz à choix de réponse, donnés 1 semaine avant la date de remise.  Ces devoirs correspondent aux sections importantes du cours
 
   |Quiz|Date|
   |-----|-------|
@@ -93,7 +93,7 @@ reveal_config:
    * En salle (Polytechnique et Québec)
    * Informatisé à choix de réponse
    * Documentation permise
-   * Information plus en détails a venir à la fin de la session
+   * Information plus en détails à venir à la fin de la session
 
    ** Assurez-vous d'être dans le bon groupe!! **
    * Groupe 01: Montréal
@@ -115,7 +115,7 @@ reveal_config:
   <section data-markdown>
   ## Moodle
 
-Site standard Moodle de Polytechnique. Ce site sera utilisé pour les devoirs, les remises de laboratoires, l'accès a via et l'accès aux fichiers du cours.  Une version PDF des notes de cours sera aussi disponible pour chaque séance de cours.
+Site standard Moodle de Polytechnique. Ce site sera utilisé pour les devoirs, les remises de laboratoires, l'accès a VIA et l'accès aux fichiers du cours.  Une version PDF des notes de cours sera aussi disponible pour chaque séance de cours.
 </section>
 <section data-markdown>
 ## Notes en ligne
@@ -124,7 +124,7 @@ Site: http://cr490.patl.io
 
 Sources: https://github.com/patricklecuyer/cr490/
 
-Les *pull requests* sont la bienvenue.  Les contrinutions des étudiants seront mentionné dans les future version des cours.
+Les *pull requests* sont les bienvenues.  Les contributions des étudiants seront mentionnées dans les futures versions des cours.
 </section>
 <section data-markdown>
 
@@ -149,7 +149,7 @@ Utiliser votre addresse @polymtl.ca pour vous enregistrer à Slack
 ##Vagrant + Virtualbox
 Vagrant est un outil pour construire et distribuer des environnements virtualisés reproductibles.  Cet outil sera utilisé pour distribuer les environnements de laboratoire utilisés dans le cadre du cours.
 
- Vagrant requiert que l'hyperviseur Virtualbox soit présent sur le système
+ Vagrant requiert que l'hyperviseur Virtualbox soit présent sur le système mais il est également possible d'utiliser VMware player
 </section>
 <section data-markdown>
 ## Installation de virtualbox
@@ -164,15 +164,15 @@ Vagrant est un outil pour construire et distribuer des environnements virtualis�
 1. Téléchargez Vagrant sur www.vagrantup.com
 2. Installez Vagrant sur votre système
 3. Pour les utilisateurs **Windows** seulement, télécharger le fichier ssh.zip du site [Moodle](http://moodle.polymtl.ca) et extraire son contenu dans le répertoire `C:\Hasicorp\vagrant\bin`
-4. Créez un répertoire pour le laboratoire du Cours 1.  Un nouveau répertoire devra être créé pour chaque cours contenant un laboratoire
-5. Téléchargez le fichier Vagrantfile dans la section Cours 1 du site Moodle du cours et déposez-le dans ce répertoire
+4. Créez un répertoire pour le laboratoire du Cours 1 dans votre répertoire 'home'; pour les utilisateurs Windows 'C:\Users\votrenom\CR490-cours1' .  Un nouveau répertoire devra être créé pour chaque cours contenant un laboratoire
+5. Téléchargez le fichier Vagrantfile dans la section Cours 1 du site Moodle du cours et déposez-le dans ce répertoire; pour les utilisateurs Windows, il faudra renommer le 'Vagrantfile.txt' en 'Vagrantfile' et confirmer l'avertissement de sécurité
 
 </section>
 <section data-markdown>
 ## Essais
-3. Ouvrez une session ligne de commande et naviguer vers ce répertoire
+3. Ouvrez une session ligne de commande et naviguer vers ce répertoire ('cd C:\Users\votrenom\CR490-cours1')
 4. Entrez la commande `vagrant up`
-5. La machine virtuelle devrais être téléchargée et démarrer
+5. La machine virtuelle devrais être téléchargée et démarrée
 6. Entrez la commande `vagrant ssh` pour ouvrir une session vers la machine virtuelle
 7. Fermez la session avec la commande `exit`
 8. Détruisez la machine virtuelle avec la commande `vagrant destroy`
@@ -184,9 +184,9 @@ Vagrant est un outil pour construire et distribuer des environnements virtualis�
 </section>
 <section data-markdown>
 ##Commandes Vagrant utiles
-- `vagrant up`: démarrez les machines virtuelles
+- `vagrant up`: Démarre la machine virtuelle
 - `vagrant ssh [nom]`: Ouvre une session vers la machine \[nom\]
-- `vagrant destroy`: Détruis les machines virtuelles
+- `vagrant destroy`: Détruit les machines virtuelles
 - `vagrant suspend`: Interrompt l'exécution des machines virtuelles sans les détruire
 <!--.slide: data-transition="zoom" -->
 </section>
