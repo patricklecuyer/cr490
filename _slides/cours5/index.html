@@ -16,7 +16,89 @@ reveal_config:
 </section>
 <section data-markdown>
   # Demo Vault
+  Vault est un outil de gestion des secrets.
+  Basé sur OpenSSL(implémentation des primitives), Vault ne fait pas de crypto comme tel, sauf sur des petites quantités de données comme CloudKMS,
+  mais ne remplace pas OpenSSL pour les primitives cryptographiques.
 </section>
+<section data-markdown>
+  # Demo Vault
+   Vault permet de répondre aux AAA pour les secrets et facilite la vie des développeurs.  Vault est composé de  2 parties, un serveur et un client.
+   Donne un API générique pour gestion des secrets ;peu importe le type de secret, manière de s’authentifier, etc. enlèvele fardeau des développeurs d’avoir à se soucier de toutes les techniques de gestion vues précédemment.
+   Vault utilise un concept similaire à un système de fichiers pour accéder à différents modules, ou caractéristiques, permettant différents types d’actions; mais on doit les « monter ».
+   Similarité avec système de fichiers (url via api) POSIX mais on ne monte pas du stockage de blocs, on monte des backends permettant de gérer nos secrets.
+</section>
+<section data-markdown>
+  # Demo Vault
+   Principe où les clés utilisées pour chiffrer les données(MK(KEK(DEK)) sont chiffrées avec une clé résidant en mémoire donc, si on arrive à télécharger toutes les données de Vault enregistrées sur le disque
+   on ne pourrait pas y accéder car elles sont chiffrées avec une clé stockée en mémoire.
+   Attention au risque d’un memory dump à moins d’utiliser des enclaves (SGX) car la clé doit être lue par un processus, lisible à un moment ou à un autre pendant son stockage en mémoire;
+   une personne ayant un accès root sur la machine roulant le serveur Vault pourrait donc accéder au contenu de la mémoire et reconstruire la clé.
+</section>
+<section data-markdown>
+  # Demo Vault
+  En roulant Vault dans un contexte Google cloud, AWS, etc l’hyperviseur peut voir le contenu de la mémoire de la VM;
+  un utilisateur malveillant y ayant un accès privilégié pourrait avoir accès à ces clés sans laisser de traces auditables directement pour le propriétaire de la VM.
+  Avec une bonne configuration de durcissement il pourrait y avoir un moyen de laisser des traces advenant un tel cas mais la question demeure à savoir si quelqu’un verra ces traces ou s’en souciera.
+  Les différentes couches d’abstraction qui sont en dessous de notre position dans la pile technologique rendent possible un accès à la mémoire dont on ne pourrait avoir aucune traces.
+  On peut donc demander aux fournisseurs cloud et à n’importe qui roulant du code pour nous plus bas comment ils détecteraient un tel incident et serait rapporté.  Sommes nous prêts à accepter un tel vecteur d’attaque, sans visibilité, sur des clés?
+  Généralement bien géré chez les grands fournisseurs cloud, voir contrat de service et contrôles appliqués.
+  Vérifier si la clé est en mémoire seulement ou si elle peut passer par la mémoire virtuelle (swap secondaire sur disque).
+</section>
+<section data-markdown>
+  # Demo Vault
+  Vault a un processus de fermeture et ouverture de voûte (seal & unseal).
+  La masterKey de Vault doit être amenée en mémoire et va y rester afin d’enforcer les critères AAA.
+  Vault utilise un moyen d’y parvenir sans qu’un seul individu ne puisse avoir accès à l’ensemble de la clé.
+  Au premier démarrage de Vault, une clé est générée puis séparée en sous-clés, permettant de régénérer la clé principale.
+  Par défaut, vault génère 5 sous-clés lors de l’initialisation visible pour l’utilisateur initialisant Vault mais on pourra y pallier.
+  Par défaut, on peut reconstruire la clé principale avec seulement 3 des 5 sous-clés, peu importe l’ordre.
+  L’objectif est de donner les 5 morceaux à 5 personnes (ou outils externes style KMS) différentes; personne ne peut ouvrir la voute seul, il faudra un certain niveau de collusion (principe de séparation des tâches).
+
+</section>
+<section data-markdown>
+  # Demo Vault
+
+    Demo interactif
+    https://www.vaultproject.io/#/demo/0
+</section>
+<section data-markdown>
+  # SGX
+  SGX est une extension au jeu d’instructions au processeur X86.  Permet à des applications de demander au processeur d’exécuter des opérations différentes de celles existantes par défaut,
+  une douzaine au totale, permettant de créer des enclaves.
+  Une enclave est une portion de mémoire à laquelle seulement des processus attestés cryptographiquement pourront voir le contenu de cette portion de mémoire.
+  Le NVRAM physique sur la puce SGX permet de générer et stocker des clés.  Encryption entre le processus et la mémoire; le processus demande la création d’une enclave,
+  le processeur génère une clé stockée sur le NVRAM et l’utilise pour encrypter les accès mémoire du processus demandant.
+  Si un autre processus demande un memory dump, le contenu "dompé" sera celui encrypté, lisible seulement par le processus demandant original.
+
+  https://regmedia.co.uk/2016/02/01/sgx_key_attestation.png
+</section>
+<section data-markdown>
+  # SGX
+  Pour s’assurer que la demande vient du bon processus, le processus devra être signé et fournir au processeur, dans un registre avec sa commande, une signature répondant à un challenge envoyé par le processeur.
+  Seul les processus signés avec la portion de la clé publique fournie lors de la demande de création d’enclave seront reconnus.
+  Permet d’avoir des processus isolés complètement du reste du processeur, même en mémoire.
+  Utile pour données extrêmement sensibles en mémoire qu’on veut protéger d’une lecture malveillante, ex masterkey de Vault.
+  Si le processeur est changé de machine les clés sont détruites; pour y avoir accès il faudrait une attaque extrêmement avancée qui modifierait la chip SGX.
+  https://xkcd.com/538/
+</section>
+<section data-markdown>
+  # SGX
+  Le produit offre une solution matérielle au problème des données en utilisation dans un contexte où il y a plusieurs couches d’abstraction.  Vault serait un excellent candidat pour profiter de ces instructions mais pour les implémenter,
+  l’application doit avoir été écrite et compilée avec les instructions de SGX ce qui n’est pas le cas avec Vault pour l’instant.
+  L’utilité viendrait, du côté client,  permettre au processus de s’assurer que son espace mémoire est protégé et du côté serveur, permettre de s’assurer qu’il roule le bon processus et qu’il n’exécute pas de code malveillant qui ne pourrait pas être signé par la bonne clé;
+  permet une chaine de confiance très solide : on roule, sur le matériel voulu, le code voulu avec seulement les données auxquelles il devrait avoir accès.
+</section>
+<section data-markdown>
+  # SGX
+  AMD a un équivalent mais différent au niveau du fonctionnement.  AMD est transparent mais moins performant que SGX.  Pour une solution qui touche à tous les accès mémoire la performance est très importante.
+  Potentiel intéressant chez les fournisseurs cloud publics, permettra d’isoler les applications dans des enclaves et réduire les vecteurs d’attaque potentiels via les niveaux d’abstraction.
+  En ce qui concerne un hyperviseur qui simulerait SGX, il existe, dans le processus d’attestation lors de la demande de création d’enclave, une manière de demander au processeur une preuve cryptographique que c’est bien un Intel et qu’il possède la clé privée Intel.
+  Il existe un émulateur SGX, via Qemu, librairie OpenSGX permet de faire des enclaves « simples » mais l’émulateur n’est pas sécurisé; encryption entre Qemu et sa mémoire seulement.
+  https://github.com/sslab-gatech/opensgx
+
+</section>
+
+
 <section data-markdown>
   <section data-markdown>
     # Cryptographie assymétrique
@@ -42,6 +124,9 @@ reveal_config:
   # Demo Keybase
 </section>
 
+<section data-markdown>
+  # Utilisation Hybride: TLS
+</section>
 <section data-markdown>
   # Utilisation Hybride: TLS
 </section>
