@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/assets/revealjs/css/reveal.css">
+  <link rel="stylesheet" href="/assets/revealjs/css/theme/night.css" id="theme">
+
+</head>
+<body>
+  <div class="reveal">	<div class="slides"><section data-markdown>
+  # CR490
+  # Cryptographie appliquée
+  ## Cours 3
+</section>
+<section>
+  <section data-markdown>
+    # Qu'est-ce que la gestion des clés?
+  </section>
+  <section data-markdown>
+    ## Définition
+
+    La gestion des clés est l'ensemble des techniques qui permettent de contrôler l'accès et protéger les clés cryptographiques (et autres secrets).
+  </section>
+  <section data-markdown>
+    ## Questions à se poser
+
+    * Qui peut voir la clé?
+    * Comment comprendre où les clés sont utilisées?
+    * Dans quel cas est-ce qu'un individu peut avoir accès aux données non-chiffrées?
+    * De quelle manière est-ce que le chiffrement amméliore ma posture de sécurité?
+  </section>
+</section>
+<section>
+  <section data-markdown>
+    # Techniques de gestion des clés
+  </section>
+  <section data-markdown>
+    ## Cryptopériode
+
+    La définition d'une cryptopériode selon la norme 800-57 du NIST est:
+
+    **A cryptoperiod is the time span during which a specific key is authorized for use by legitimate
+entities, or the keys for a given system will remain in effect**
+    **Une cryptopériode est la durée de temps pendant laquelle une clé spécifique est autorisée pour
+    utilisation par des entités légitimes ou pendant laquelle les clés pour un système donné demeurent actives**
+
+  </section>
+  <section data-markdown>
+    ## Choix de cryptopériode (NIST 800-57)
+
+    * Limite la taille d'information, protégée par une certaine clé, disponible pour cryptanalyse
+    * Limite l'exposition advenant le cas d'une seule clé compromise
+    * Limite l'utilisation d'un algorithme particulier (ex. à sa durée de vie efficace estimée)
+    * Limite le temps disponible pour les tentatives de pénétration des mécanismes d'accès physiques,
+    procéduraux et logiques qui protègent une clé contre les divulgations non autorisées
+    *  Limite la période durant laquelle l'information pourrait avoir été compromise par divulgation
+    accidentelle du matériel de chiffrement à des entités non autorisées
+    * Limite le temps disponible pour les attaques de cryptanalyse nécessitant un calcul intensif
+    (dans les cas où une protection de clé à long terme n'est pas nécessaire)
+  </section>
+  <section data-markdown>
+    ## Rotation des clés
+
+    Une politique de rotation des clés définit comment une organisation s'assure que les clés ne dépassent pas les cryptopériodes définies.  Normalement, cette politique assure que les clés seront changées régulièrement, à un intervalle plus court que la cryptopériode.
+  </section>
+  <section data-markdown>
+    ## Gestion des versions
+
+    Une des problématiques communes avec la rotation des clés est la complexité liée à la gestion des données déjà chifrées.  Rechiffrer l'ensemble des données lors de la rotation d'une clé est coûteux et souvent irréaliste.  Afin de contourner cette problématique, un mécanisme des gestion des versions est souvent utilisé.
+  </section>
+  <section data-markdown>
+    ## Mécanisme de gestion des versions
+
+    1. Lorsqu'une clé est générée, un numéro de version est assigné à cette clé.
+    2. Lorsqu'une reqête est reçue pour chiffrer des données, la clé la plus récente est utilisée, et le numéro de version de la clé est enregistré avec les données chiffrées.
+    3. Lorsqu'une requète est recue pour déchiffrer des données, la version de la clé référencée est utilisée pour déchiffrer.
+    4. Lorsque la cryptopériode d'une version de clé est échue, les données chiffrées avec cette clé sont rechiffrées avec la version la plus récente et la clé échue est détruite.
+
+  </section>
+  <section data-markdown>
+    ## Exemple de gestion des versions
+  </section>
+  <section data-markdown>
+    ## Révocation
+
+  </section>
+  <section data-markdown>
+    ## Stockage
+
+    Comme les clés sont critiques à la protection des données, bien stocker les clés est très important.  Les concepts autour du stockage des clés sont:
+
+    * Authentification
+    * Autorisation
+    * Audit
+  </section>
+
+  <section data-markdown>
+    ## HSM
+
+    Un HSM (Hardware Security Module) est un module physique qui permet le stockage sécuritaire des clés. Le HSM est configuré de manière à ce que les clés ne puissent pas être exportées et que toute tentative de physiquement voler les clés détruise le matériel.
+  </section>
+  <section data-markdown>
+    ## Utilisation d'un HSM
+
+    Un HSM sera utilisé pour procéder à des opérations cryptographiques.  Ainsi, au lieu d'accèder à une clé, une requète sera faite au HSM pour chiffrer ou déchiffrer des données, sans que la clé ne soit visible à l'extérieur de l'appareil.
+  </section>
+</section>
+<section>
+  <section data-markdown>
+    # Encryption par enveloppe
+  </section>
+  <section data-markdown>
+    ## Définition
+
+    L'encryption par enveloppe est une méthode qui permet de définir une hiérachie de clés.  Ce type de hiérarchie permet de limiter l'impact d'une clé compromise, facilite la rotation et permet d'utiliser plus facilement les équipements physiques tels que les HSM
+  </section>
+  <section data-markdown>
+    ## Processus de chiffrement des clés
+
+    1. Une clé de chiffrement des clés (KEK ou Key Encryption key ou Master Key) est générée.  Cette clé est conservée à un endroit sécuritaire (souvent, un HSM)
+    2. Lorsque des données doivent être chiffrées, une clé de chiffrement de données (DEK ou Data Encryption Key) est générée.
+    3. La clé de chiffrement des données est utilisée pour chiffrer les données.
+    4. La clé de chiffrement des données est envoyée au HSM (ou autre module cryptographique) pour être chiffrée avec la KEK.
+    5. La DEK chiffrée est enregistreée avec les données, sur le même support.
+  </section>
+  <section data-markdown>
+    ## Processus de chiffrement des données
+
+    1. Lorsque des données doivent être chiffrées, la clé de chiffrement des données, stockée avec les données elles-mêmes, est extraite.
+    2. La clé de chiffrement des données est envoyé au HSM (ou autre module cryptographique) pour être déchiffrée avec la KEK.
+    3. La clé de chiffrement des données, ainsi décryptée, est utilisée pour déchiffrer les données.
+  </section>
+  <section data-markdown>
+    ## Exemple de dé chiffrement des données
+
+    1. Lorsque des données doivent être chiffrées, la clé de chiffrement des données stockées avec les données elles-mêmes est extraite.
+    2. La clé de chiffrement des donnée est envoyé eau HSM (ou autre module cryptographique) pour être déchiffrée avec la KEK.
+    3. La clé de chiffrement des données est utilisée pour chiffrer les données.
+  </section>
+</section>
+
+<section>
+  <section data-markdown>
+    # Démo d'outil de gestion des clés
+    ## Google CloudKMS
+      </section>
+
+</section>
+
+<section>
+  <section data-markdown>
+    # Démo d'outil de gestion des clés
+    ## Vault par Hashicorp
+      </section>
+
+</section>
+</div></div>
+  <script src="/assets/revealjs/js/reveal.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/0.96/head.min.js"></script>
+  <script>
+    var reveal_config = null || {};
+    Reveal.initialize({
+      dependencies: [
+        { src: '/assets/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+        { src: '/assets/revealjs/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/assets/revealjs/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/assets/revealjs/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: '/assets/revealjs/plugin/zoom-js/zoom.js', async: true },
+        { src: '/assets/revealjs/plugin/notes/notes.js', async: true },
+      ]
+    });
+    Reveal.configure(reveal_config)
+  </script>
+</body>
+</html>
