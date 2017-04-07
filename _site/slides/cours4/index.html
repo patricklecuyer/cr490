@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/assets/revealjs/css/reveal.css">
+  <link rel="stylesheet" href="/assets/revealjs/css/theme/night.css" id="theme">
+
+</head>
+<body>
+  <div class="reveal">	<div class="slides"><section>
+  <section data-markdown>
+    # Encryption par enveloppe
+  </section>
+  <section data-markdown>
+    ## Définition
+
+    L'encryption par enveloppe est une méthode qui permet de définir une hierachie de clé.  Ce type de hiérarchie permet de limiter l'impact d'une clé compromise, facilite la rotation et permet d'utiliser plus facilement les équipements physiques tels que les HSM
+  </section>
+  <section data-markdown>
+    ## Processus de chiffrement
+
+    1. Une clé de chiffrement des clés (KEK) est générée.  Cette clé est conservée à un endroit sécuritaire (souvent, un HSM)
+    2. Lorsque des données doivent être chiffrées, une clé de chiffrement de données (DEK) est générée.
+    3. La clé de chiffrement des donnée est utilisée pour chiffrer les données.
+    4. La clé de chiffrement des donnée est envoyé au HSM (ou autre module cryptographique) pour être chiffrée avec la KEK.
+    5. La DEK chiffrée est enregistreée avec les données.
+  </section>
+  <section data-markdown>
+    ## Processus de chiffrement
+
+    1. Lorsque des données doivent être chiffrées, la clé de chiffrement des données stockées avec les donnée elle-même est extraite.
+    2. La clé de chiffrement des donnée est envoyé eau HSM (ou autre module cryptographique) pour être déchiffrée avec la KEK.
+    3. La clé de chiffrement des donnée est utilisée pour déchiffrer les données.
+  </section>
+  <section data-markdown>
+    ## Exemple
+
+    1. Lorsque des données doivent être chiffrées, la clé de chiffrement des données stockées avec les donnée elle-même est extraite.
+    2. La clé de chiffrement des donnée est envoyé eau HSM (ou autre module cryptographique) pour être déchiffrée avec la KEK.
+    3. La clé de chiffrement des donnée est utilisée pour déchiffrer les données.
+  </section>
+</section>
+
+<section>
+  <section data-markdown>
+    # Démo d'outils de gestion des clés
+  </section>
+  <section data-markdown>
+    ## Google CloudKMS
+  </section>
+  <section data-markdown>
+    ## Amazon KMS
+  </section>
+  <section data-markdown>
+    ## Vault
+  </section>
+</section>
+</div></div>
+  <script src="/assets/revealjs/js/reveal.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/0.96/head.min.js"></script>
+  <script>
+    var reveal_config = null || {};
+    Reveal.initialize({
+      dependencies: [
+        { src: '/assets/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+        { src: '/assets/revealjs/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/assets/revealjs/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/assets/revealjs/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: '/assets/revealjs/plugin/zoom-js/zoom.js', async: true },
+        { src: '/assets/revealjs/plugin/notes/notes.js', async: true },
+      ]
+    });
+    Reveal.configure(reveal_config)
+  </script>
+</body>
+</html>

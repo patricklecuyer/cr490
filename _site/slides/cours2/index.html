@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/assets/revealjs/css/reveal.css">
+  <link rel="stylesheet" href="/assets/revealjs/css/theme/night.css" id="theme">
+
+</head>
+<body>
+  <div class="reveal">	<div class="slides"><section data-markdown>
+  # CR490
+  # Cryptographie appliquée
+  ## Cours 2
+</section>
+<section>
+  <section>
+    <h1> Pourquoi la cryptographie?</h1>
+  </section>
+  <section>
+    <h2>Caractéristiques de sécurité de l'information</h2>
+    <ul>
+    <li class="fragment grow">Confidentialité</li>
+    <li class="fragment grow">Intégrité</li>
+    <li class="fragment shrink">Disponibilité</li>
+    <li class="fragment grow">Authentification</li>
+    <li class="fragment shrink">Autorisation</li>
+    <li class="fragment grow">Audit</li>
+  </ul>
+  </section>
+</section>
+<section>
+  <section>
+    <h1> Où appliquer la cryptographie?</h1>
+  </section>
+  <section>
+  <h2>Où appliquer la cryptographie?</h2>
+  <ul>
+  <li class="fragment">Au repos</li>
+   <li class="fragment">En mouvement</li>
+   <li class="fragment">En utilisation</li>
+</section>
+</section>
+<section>
+  <section>
+    <h1> Types d'algorithmes</h1>
+  </section>
+  <section>
+  <h2>Types d'algorithmes</h2>
+  <ul>
+  <li class="fragment">Symétriques</li>
+   <li class="fragment">Asymétriques</li>
+   </ul>
+</section>
+</section>
+<section>
+  <section>
+    <h1>Techniques cryptographiques</h1>
+  </section>
+  <section>
+  <h2>Techniques cryptographiques</h2>
+  <ul>
+   <li class="fragment">Chiffrement</li>
+   <li class="fragment">Hachage</li>
+   <li class="fragment">Signature</li>
+   <li class="fragment">Authentification</li>
+   <li class="fragment">Transfert de clés</li>
+   </ul>
+  </section>
+</section>
+<section>
+  <section>
+    <h1> La gestion des clés</h1>
+  </section>
+  <section>
+  <h2>Comment protéger les clés</h2>
+    <ul>
+    <li class="fragment">Confidentialité</li>
+    <li class="fragment">Intégrité</li>
+    <li class="fragment">Disponibilité</li>
+    <li class="fragment">Authentification</li>
+    <li class="fragment">Autorisation</li>
+    <li class="fragment">Audit</li>
+  </ul>
+  </section>
+<section>
+  <h2>Technique de gestion des clés</h2>
+    <ul>
+    <li class="fragment">Génération</li>
+    <li class="fragment">Rotation</li>
+    <li class="fragment">Historique</li>
+    <li class="fragment">Révocation</li>
+    <li class="fragment">Enveloppe</li>
+    <li class="fragment">Audit</li>
+  </ul>
+  </section>
+</section>
+</div></div>
+  <script src="/assets/revealjs/js/reveal.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/0.96/head.min.js"></script>
+  <script>
+    var reveal_config = null || {};
+    Reveal.initialize({
+      dependencies: [
+        { src: '/assets/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+        { src: '/assets/revealjs/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/assets/revealjs/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/assets/revealjs/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: '/assets/revealjs/plugin/zoom-js/zoom.js', async: true },
+        { src: '/assets/revealjs/plugin/notes/notes.js', async: true },
+      ]
+    });
+    Reveal.configure(reveal_config)
+  </script>
+</body>
+</html>
