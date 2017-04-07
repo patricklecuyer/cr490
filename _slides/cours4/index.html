@@ -9,14 +9,24 @@ reveal_config:
   transition: slide
   slideNumber: true
 ---
+<section data-markdown>
+  # CR490
+  # Cryptographie appliquée
+  ## Cours 3
+</section>
 <section>
+
   <section data-markdown>
-    # Encryption par enveloppe
+    ## Encryption par enveloppe
+    Plus un protocole de gestion de clé que d’encryption, les clés seront encryptés mais l’important est la structure autour de la gestion des clés.
   </section>
   <section data-markdown>
-    ## Définition
+    ## Objectifs
+    1. Limiter les risques si une clé est compromise, permet de suppléer à la rotation et non de la remplacer.
+    1.1 Problématique de la rotation dans la quantité de données à rechiffrer à la fin de la cryptopériode.
+    2. Utiliser une manière plus efficace les cryptomodules et HSM
+    (Limiter la quantité d’information à envoyer au module/hsm sans envoyer l’ensemble des données et nécessiter des opérations lourdes au niveau du module.)
 
-    L'encryption par enveloppe est une méthode qui permet de définir une hierachie de clé.  Ce type de hiérarchie permet de limiter l'impact d'une clé compromise, facilite la rotation et permet d'utiliser plus facilement les équipements physiques tels que les HSM
   </section>
   <section data-markdown>
     ## Processus de chiffrement
@@ -41,6 +51,12 @@ reveal_config:
     2. La clé de chiffrement des donnée est envoyé eau HSM (ou autre module cryptographique) pour être déchiffrée avec la KEK.
     3. La clé de chiffrement des donnée est utilisée pour déchiffrer les données.
   </section>
+
+  <section data-markdown>
+     Il est également possible d’utiliser plusieurs clés DEK si un fichier est volumineux ou une par fichier qui seront toutes dépendantes de l’autorité centrale (HSM avec MEK).
+     L’objectif d’une signature de clé dans GPG est de faire confiance au fournisseur de la clé, dans un contexte asymétrique, renforce l’identité autour de la clé.
+  </section>
+
 </section>
 
 <section>
@@ -49,9 +65,24 @@ reveal_config:
   </section>
   <section data-markdown>
     ## Google CloudKMS
-  </section>
-  <section data-markdown>
-    ## Amazon KMS
+     Joue le rôle d’un HSM en générant des clés non exportables et de faire des opérations crypto, également protège CID et assure AAA.
+
+     En tant qu’utilisateur, on ne peut voir le contenu de la clé, seulement son existence; elle est non exportable.
+
+     Possible de donner des rôles (Autorisation) au niveau de la gestion des clés mais non du chiffrement des données en les utilisant, incapables de les unwrapper.
+
+   </section>
+   <section data-markdown>
+     ## Google CloudKMS
+     Validation d'identité via 0Auth (Authentification) avant de permettre l’accès aux opérations cryptographiques.
+
+     Dans l’activité, on peut voir ce qui s’est passé avec la clé (création, encryption, décryption, etc.) car les traces sont conservées (Audit).
+
+     La taille du fichier augmente dans le chffrement car google enregistre des métadonnées avec le fichier (version de clé) la longueur des blocs fixe peut nécessiter du padding.
+
+     Possible de désactiver une clé sans la détruire.
+
+     Le KMS ne peut pas encrypter de grandes quantités de données, max 64k, retourne une erreur autrement; son utilité ne s’applique qu’au niveau de clés.
   </section>
   <section data-markdown>
     ## Vault

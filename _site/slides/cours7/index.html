@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/assets/revealjs/css/reveal.css">
+  <link rel="stylesheet" href="/assets/revealjs/css/theme/night.css" id="theme">
+
+</head>
+<body>
+  <div class="reveal">	<div class="slides"><section data-markdown>
+  # CR490
+  # Cryptographie appliquée
+  ## Cours 7
+</section>
+
+<section data-markdown>
+  ## Internet et les connexions sécurisées
+  Qu'est-ce qui se passe quand on s’authentifie à un site web sécurisé?  La crypto est appliquée à plusieurs endroits, de façon symétrique et asymétrique, et on va introduire le concept de certificat, connexe à la crypto asymétrique, et comment les utiliser dans un contexte d’identité.
+  Qu’est-ce que le browser va faire, jusqu’au niveau réseau, pour s’assurer qu’il affiche le bon contenu et donne le petit icône vert confirmant la sécurité.
+  IMPORTANT, souvent une question d’entrevue.  Comprendre comment la crypto peut contribuer à valider l’identité et permettre la sécurisation des données sur internet.
+</section>
+<section data-markdown>
+  ## Internet et les connexions sécurisées
+  Résoudre l’hôte: le browser prend la chaîne de caractères, le sépare en portions.  URL a 3 portions principales : le protocole (https) avant le : , ce qu’il y a entre // et le premier / suivant, l’hôte, puis le chemin qui est après le /.  En premier, le browser cherche qui est www.google.ca .
+  Internet fonctionne avec des adresses IP, même si on fonctionne surtout avec des noms de domaines, le processus de résolution entre un nom de domaine et une adresse est le service de DNS.
+</section>
+<section data-markdown>
+  ## Internet et les connexions sécurisées
+  Il existe une implantation qui ajoute des fonctions d’identité.  Cette étape est très importante car elle choisit vers quelle machine on va se connecter, se connecter à la mauvaise machine pourrait représenter un risque de sécurité.  Le browser vérifie à plusieurs endroits pour déterminer l’adresse ip.  Premièrement il va demander au OS si une entrée existe, l’OS vérifiera premièrement son fichier hosts (/etc/hosts sur linux et mac, C:\windows\system32\drivers\etc\hosts), fichier texte simple où l’on lie une adresse ip à un nom.  Pas besoin de valider l’identité localement car on fait implicitement confiance à notre système donc pas besoin de contrôle cryptographique.
+</section>
+<section data-markdown>
+  ## Internet et les connexions sécurisées
+  La question à se poser dans les contrôles cryptographique est : « Quelles ressources seraient nécessaire à un attaquant pour potentiellement modifier l’identité, modifier le fichier hosts ?».  Pour modifier le fichier hosts, il faut un accès au système local et s’il est compromis, on ne peut donc pas faire confiance au browser et, à l’inverse, si on a confiance au système le browser n’a pas besoin de faire de contrôle crypto sur le fichier hosts.
+</section>
+
+<section data-markdown>
+  ## Solution fichier hosts
+  Si le browser ne valide pas de contrôle cryptographique, nous pouvons quand même en ajouter.  Recommandé avec des serveurs en productions qui font des requêtes vers des sites externes, comme des appels d’API pour potentiellement envoyer de l’information sensible à l’extérieur, un attaquant pourrait potentiellement compromettre le serveur, modifier le fichier hosts et envoyer l’information ailleurs.  Généralement, le fichier hosts ne change pas très souvent, pas beaucoup de nouveau contenu.
+</section>
+  <section data-markdown>
+    ## Solution fichier hosts
+  Prendre une signature et la valider.  Antivirus peut le faire mais vérifiez avec le fournisseur.  On se crée une clé privée et on l’utilise pour signer, avec un algorithme sécuritaire, le fichier hosts.
+</section>
+  <section data-markdown>
+    ## Solution fichier hosts
+  On va mettre un système d’alertage qui va valider la signature avec la clé publique.  Si jamais le fichier est modifié, une alerte sera lancée.  Scénario d’attaque intéressant car il n’existe pas de contrôle built-in.  La clé privée doit être bien protégée.   La raison pour laquelle les attaquants modifieraient le fichier hosts, alors que d’autres moyens sont surement utilisables pour ses fins, est que c’est plus difficile à détecter en forensics.  Dans une configuration par défaut d’un système qui aurait été compromis, il y a plus de probabilités de détecter une autre attaque qu’une simple modification du fichier hosts.  Beaucoup de malware, rootkits et RAT, pour monter un MITM.  Pour effectuer une attaque, on ne va pas nécessairement utiliser l’attaque la plus efficace mais celle qui restera en place le plus longtemps.
+</section>
+
+<section data-markdown>
+  ## Cache DNS
+  2e endroit où l’OS va vérifier est la cache DNS, un endroit où l’OS enregistre les résultats des requêtes DNS.  Conservée pour une certaine quantité de temps, appelée TTL (time to live), fournie par le serveur DNS.  L’utilité est pour une question de performance, si on se connecte à un domaine, on a ensuite plusieurs requêtes allant vers le même domaine pour charger des scripts, des images, etc.  On évite ainsi de faire des requêtes à répétition.  Le cache ne reste pas très longtemps et on prend pour acquis qu’il n’a pas besoin de validation avec des contrôles cryptographiques.
+</section>
+
+<section data-markdown>
+  ## Cache DNS
+Il est possible de le manipuler mais pas facilement, scénario d’attaque très court.  Dans le cas où des serveurs vont faire des requêtes vers des sites internes ou vers un petit nombre de sites, pas utilisés de façon interactive, le cache peut nuire d’un point de vue de sécurité mais d’un point de vue gestion en général; si jamais le nom change d’adresse IP, ça prend 5 mins avant de le savoir….  Il y a10-15 ans, on avait des serveurs qui cachaient pour 24h mais plus besoin car protocole très léger et connexions plus rapide qu’autrefois.
+</section>
+
+<section data-markdown>
+  ## Cache DNS
+ Si on fait beaucoup de requêtes au même endroit il y a quand même un avantage à le faire.   Si on n’est pas dans ce genre de situation, généralement vrai dans un environnement de production, il est recommandé de désactiver le cache.  Étant très volatile, changeant rapidement, on ne peut pas le signer facilement et mettre de bons contrôles cryptographiques, contrairement au fichier hosts.  Pour contrer un DNS poisonning local.
+Dans les OS workstation très sécuritaires, il n’y aura pas de dns cache.  Encore là, pour modifier le cache, il faut un accès local à la machine ou modifier les requêtes DNS en transit.  En théorie, quand une entrée apparait dans le cache, elle a été validée par dnssec.
+</section>
+
+<section data-markdown>
+  ## Resolver
+  Dans le cas où le nom n’est pas dans le fichier hosts ni dans le cache, via un appel système GETHOSTBYNAME, l’OS va aller vérifier sa configuration réseau pour trouver le serveur connu qui nous donnera l’adresse, le resolver (etc/resolve.conf ou qqpart dans le registre pour win).  Entrée avec un ou plusieurs serveurs, qui vont potentiellement connaitre le nom où aller le chercher dans des serveurs plus haut de la hiérarchie. Dans le cas où le nom n’est pas dans le fichier hosts ni dans le cache, via un appel système GETHOSTBYNAME, l’OS va aller vérifier sa configuration réseau pour trouver le serveur connu qui nous donnera l’adresse, le resolver (etc/resolve.conf ou qqpart dans le registre pour win).  Entrée avec un ou plusieurs serveurs, qui vont potentiellement connaitre le nom où aller le chercher dans des serveurs plus haut de la hiérarchie.
+</section>
+
+<section data-markdown>
+  ## Resolver
+  Notre OS connaissant le resolver, il ouvre une connexion
+  *Si question en entrevue, descendre une couche plus bas et expliquer comment on établit la connexion avec le datagramme UDP et le handshake*
+  Par défaut sur UDP :53 mais peut passer sur TCP au besoin.  Ici 2 choses peuvent se produire : il va vérifier son cache, pas de contrôle crypto car très dynamique.  Il faut donc s’assurer que celles-ci sont valides avant de les y enregistrer, avec des contrôles en amont.  Important d’avoir un resolver de confiance, soit aucun cache ou vérifie entrées.  Normalement le FSI en a un mais il faut faire confiance au FSI.
+</section>
+
+<section data-markdown>
+  ## Resolver
+  Google a 2 serveurs DNS publics bien sécurisés 8.8.8.8 et 8.8.4.4  Énormément d’attaques à ce niveau car on peut rediriger du trafic, mascarader des noms.  Certains sites offrent des redirections de DNS pour bypasser des contrôles, par exemple géolocalisation pour accéder à Netflix US.  Pas recommandé de jouer avec DNS comme ça mais advenant le cas, vérifier que la configuration du browser pour les utiliser est limitée au domaine qui nous intéresse car gros risques de MITM.  Une attaque de DNS poisoning se fait au niveau du cache du resolver.  On prend avantage que DNS se fait sur une connexion UDP pour simuler des réponses de serveurs DNS.
+</section>
+
+<section data-markdown>
+  ## Resolver
+  Lorsque le nom n’est pas dans la cache du resolver, il le sépare où il y a les points pour faire une série de requêtes.  Il y a une liste limitée de TLD (top level domains, situés sous la racine .) gérés par IANA, qui gère les espaces de noms, de ports, toute l’information qui est partagée sur internet.  IANA garde une liste des serveurs root, https://www.iana.org/domains/root/servers,  qui, pour le suffixe, seront le serveur autoritaire. **tld – domain – subdomain – host **
+  Il fait une requête UDP :53 et demande au root qui connait nom.suffixe .
+</section>
+
+<section data-markdown>
+  ## Resolver
+  Le processus d’enregistrement de domaine, ce pourquoi on paye, est la capacité d’écrire dans le root server où sont les serveurs pour notre sous-domaine.  Le serveur root va nous répondre qu’il ne connait pas l’adresse mais va nous référer les serveurs qui  pourraient connaitre ces adresses.  Le resolver va en choisir un, au hasard si plusieurs, et va l’interroger.  S’il n’a pas d’entrée mais connait un serveur qui pourrait le savoir, son adresse est retournée et la chaîne continue jusqu’à ce que l’on trouve l’adresse associée ou qu’on arrive à un serveur qui ne peut nous rediriger et réponde qu’il n’existe pas d’adresse pour le nom.  Concept de récursivité et non de proxy.
+</section>
+
+<section data-markdown>
+  ## Resolver
+  Généralement le nombre de redirections dépend du nombre de sous-domaines.  On a un problème au niveau de sécurité car UDP utilise des datagrammes et n’a pas de handshake pour établir des connexions comme TCP.  On utilise UDP pour des raisons de performance afin d’avoir des requêtes petites car il y en a énormément sur internet.  Aucune validation des identités ni des demandes de connexions avec ces serveurs, ce qui permet le DNS poisoning.  Un attanquant pourrait envoyer des réponses disant ‘je suis nsmachin et le nom.domaine est fausseadresse’ avec une adresse ip spoofée facilement car aucune connexion établie et on peut finir par faire entrer l’adresse dans la cache du serveur DNS avec un TTL assez long pour ne plus interroger les serveurs officiels.  Pourrait être fait au niveau du host mais difficile car souvent derrière du NAT.  Possible de le faire en TCP mais pas aussi facile.
+</section>
+
+<section data-markdown>
+  ## DNSSEC
+  Avec l’extension DNSSEC, on peut ajouter un contexte d’identité à DNS avec de la crypto asymétrique pour ajouter de la signature par-dessus ce qui se passe normalement.  On ajoute une entrée qui donne la clé publique du domaine enregistré.  Dans une réponse DNSSEC, on a en plus une signature de l’entrée DNS retournée.  Pour des raisons de performance, le resolver va retourner cette réponse, incluant la signature, au requérant et ensuite s’assurer, localement, que la signature est valide avant de l’écrire dans son cache, ce qui sera également fait par l’OS du requérant.   Comme l’attaquant n’a pas la clé privée, il ne peut pas signer les requêtes et avec DNSSEC les requêtes non signées sont ignorées.  Il est également possible de déléguer.
+</section>
+
+<section data-markdown>
+  ## DNSSEC -- commande linux
+  Commande [dig opendnssec.org +dnssec]  retourne les signatures mais pas les clés.  Commande [dig opendnssec.org DNSKEY] donne la clé publique pour vérifier la signature. Option [+multi] pour lisibilité.
+  Signature effectuée par le niveau au-dessus de la hiérarchie DNS.
+  RRSIG : signature + metadonnées.  Pour valider l'entrée SOA retournée.
+  Hiérarchie de signatures afin de s’assurer qu’il n y a pas de dns spoofing des dnskey.
+  La clé est aussi signée, on peut demander au root de .org ou enregistrement dans le serveur dns qui connait les cle publiques des serveurs de tete pour ne pas avoir à se fier à des sources externes.
+  Commande [dig . DNSKEY +dnssec +multi] clé centrale du IANA.  Identité fédérée, on peut remonter jusqu’à la racine.
+</section>
+
+<section data-markdown>
+  ## DNSSEC -- Utilité
+  4 vecteurs d’attaque possibles : hosts, dns poisonning local ou distant, ou si on considère que le resolver n’est pas de confiance.  DNSSEC devrait être activé partout où on peut.  Avait mauvaise réputation quand il est apparu il y a 10-15 ans car coûteux d’effectuer des opérations crypto mais ce n’est plus le cas aujourd’hui.  Particulièrement important pour des réseaux à haute valeur, même sur un réseau privé.  Permet aussi à DNS de stocker d’autres types d’informations, concept d’identité d’host.
+</section>s
+  <section data-markdown>
+    ## DNSSEC -- Utilité
+
+    Dans un environnement cloud élastique, on veut s’assurer que les host qui vont apparaitre sur le réseau et communiquer sont légitimes et identifiables entre eux.  Avec un concept de signatures, IPSEC, dns pour distribuer les clés IPSEC et mettre une base de confiance dans le système d’identité.  Cette base sera les clés DNSSEC.  Permet crypto en mouvement, sur des host arbitraires en se basant sur une autorité de confiance externe.  DNSSEC est plus important pour des domaines ou sous-domaines qui traiteront de l’information confidentielle.
+</section>
+
+<section data-markdown>
+  ## DNSSEC -- Utilité
+  Est-ce que DNSSEC ajoute un certain coût réseau en plus pour aller chercher les clés à chaque niveau ?
+  Ajoute un coût minime car la signature doit être validée, mais pas à chacune des requêtes à cause des TTL, période de temps limitée où on utilise l’entrée en cache.
+  Si on l’utilisait à chaque requête, le coût pourrait être prohibitif mais DNSSEC permet de faire confiance au cache.
+</section>
+
+<section data-markdown>
+  ## Lecture supplémentaire
+  https://www.blackhat.com/docs/us-15/materials/us-15-Gavrichenkov-Breaking-HTTPS-With-BGP-Hijacking-wp.pdf
+</section>
+</div></div>
+  <script src="/assets/revealjs/js/reveal.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/0.96/head.min.js"></script>
+  <script>
+    var reveal_config = null || {};
+    Reveal.initialize({
+      dependencies: [
+        { src: '/assets/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+        { src: '/assets/revealjs/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/assets/revealjs/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/assets/revealjs/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: '/assets/revealjs/plugin/zoom-js/zoom.js', async: true },
+        { src: '/assets/revealjs/plugin/notes/notes.js', async: true },
+      ]
+    });
+    Reveal.configure(reveal_config)
+  </script>
+</body>
+</html>

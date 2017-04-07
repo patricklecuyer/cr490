@@ -12,136 +12,189 @@ reveal_config:
 <section data-markdown>
   # CR490
   # Cryptographie appliquée
-  ## Cours 3
-</section>
-<section>
-  <section data-markdown>
-    # Qu'est-ce que la gestion des clés?
-  </section>
-  <section data-markdown>
-    ## Définition
-
-    La gestion des clé est l'ensemble des techniques qui permettent de controller l'accès et protéger les clés cryptographiques (et autres secrets).
-  </section>
-  <section data-markdown>
-    ## Questions à se poser
-
-    * Qui peux voir la clé?
-    * Comment comprendre ou les clé ssont utilisées?
-    * Dans quel cas est-ce qu'un individu peut avoir accès aux données non-chiffrée?
-    * De quelle manière est-ce que le chiffrement amméliore ma posture de sécurité?
-  </section>
-</section>
-<section>
-  <section data-markdown>
-    # Techniques de gestion des clés
-  </section>
-  <section data-markdown>
-    ## Cryptopériode
-
-    La définition d'une cryptopériode selon la norme 800-57 du NIST est:
-
-    **A cryptoperiod is the time span during which a specific key is authorized for use by legitimate
-entities, or the keys for a given system will remain in effect**
-
-  </section>
-  <section data-markdown>
-    ## Choix de cryptopériode (NIST 800-57)
-
-    * Limits the amount of information protected by a given key that is available for
-cryptanalysis,
-    * Limits the amount of exposure if a single key is compromised,
-    *  Limits the use of a particular algorithm (e.g., to its estimated effective lifetime),
-    *  Limits the time available for attempts to penetrate physical, procedural, and logical
-access mechanisms that protect a key from unauthorized disclosure,
-    *  Limits the period within which information may be compromised by inadvertent
-disclosure of keying material to unauthorized entities, and
-    *  Limits the time available for computationally intensive cryptanalytic attacks (in
-applications where long-term key protection is not required).
-  </section>
-  <section data-markdown>
-    ## Rotation des clés
-
-    Une politique de rotation des clés définie comment une organisation s'assure que les clés ne dépassent pas les cryptopériodes définie.  Normalement, cette politique assure que les clés seront changés régulièrement, à un intervalle plus court que la cryptopériode.
-  </section>
-  <section data-markdown>
-    ## Gestion des versions
-
-    Une des problématiques communes avec la rotation des clés est la complexité liée à la gestion des données déjà chifrées.  Rechiffrer l'ensemble des données lors de la rotation d'une clé est couteux et souvent irréaliste.  Afin de contourner cette problématique, un mécanisme des gestion des versions est souvent utilisé.
-  </section>
-  <section data-markdown>
-    ## Mécanisme de gestion des versions
-
-    1. Lorsqu'une clée est générée, un numéro de version est assigné à cette clé.
-    2. Lorsqu'une requète est recue pour chiffrer des données, la clé la plus récente est utilisée, et le numéro de version de la clé est enregistré avec les données chiffré.
-    3. Lorsqu'une requète est recue pour déchiffrer des données, la version de la clé référencée est utilisée pour déchiffrer.
-    4. Lorsque la cryptopériode d'une version de clé est échue, les données chiffrées avec cette clé sont rechiffré avec la version la plus récente, et la clé échue est détruite.
-
-  </section>
-  <section data-markdown>
-    ## Exemple de gestion des versions
-  </section>
-  <section data-markdown>
-    ## Révocation
-
-  </section>
-  <section data-markdown>
-    ## Stockage
-
-    Comme les clés sont critiques à la protection des donnée, bien stocker les clé est très important.  Les concepts autour du stockage des clé sont:
-
-    * Authentification
-    * Authorisation
-    * Audit
-  </section>
-
-  <section data-markdown>
-    ## HSM
-
-    Un HSM est un module physique qui permet le stockage sécuritaire des clé. Le HSM est configuré de manière à ce que les clés ne puissent pas être exporté, et que toute tentative de physiquement voler les clés détruise le matériel.
-  </section>
-  <section data-markdown>
-    ## Utilisation d'un HSM
-
-    Un HSM sera utilisé pour procéder à des opérations cryptographique.  Ainsi, au lieu d'accèder une clé, une requète sera faite au HSM pour chiffrer ou déchiffrer des données, sans que la clé soit visible à l'Extérieur de l'appareil.
-  </section>
-</section>
-<section>
-  <section data-markdown>
-    # Encryption par enveloppe
-  </section>
-  <section data-markdown>
-    ## Définition
-
-    L'encryption par enveloppe est une méthode qui permet de définir une hierachie de clé.  Ce type de hiérarchie permet de limiter l'impact d'une clé compromise, facilite la rotation et permet d'utiliser plus facilement les équipements physiques tels que les HSM
-  </section>
-  <section data-markdown>
-    ## Processus de chiffrement
-
-    1. Une clé de chiffrement des clés (KEK) est générée.  Cette clé est conservée à un endroit sécuritaire (souvent, un HSM)
-    2. Lorsque des données doivent être chiffrées, une clé de chiffrement de données (DEK) est générée.
-    3. La clé de chiffrement des donnée est utilisée pour chiffrer les données.
-    4. La clé de chiffrement des donnée est envoyé au HSM (ou autre module cryptographique) pour être chiffrée avec la KEK.
-    5. La DEK chiffrée est enregistreée avec les données.
-  </section>
-  <section data-markdown>
-    ## Processus de chiffrement
-
-    1. Lorsque des données doivent être chiffrées, la clé de chiffrement des données stockées avec les donnée elle-même est extraite.
-    2. La clé de chiffrement des donnée est envoyé eau HSM (ou autre module cryptographique) pour être déchiffrée avec la KEK.
-    3. La clé de chiffrement des donnée est utilisée pour déchiffrer les données.
-  </section>
-  <section data-markdown>
-    ## Exemple
-
-    1. Lorsque des données doivent être chiffrées, la clé de chiffrement des données stockées avec les donnée elle-même est extraite.
-    2. La clé de chiffrement des donnée est envoyé eau HSM (ou autre module cryptographique) pour être déchiffrée avec la KEK.
-    3. La clé de chiffrement des donnée est utilisée pour déchiffrer les données.
-  </section>
+  ## Cours 8
 </section>
 
 <section>
   <section data-markdown>
-    # Démo d'outil de gestion des clés
+    #Internet et les connexions sécurisées (suite)
+  </section>
+
+  <section data-markdown>
+    ## Protocole
+     Après avoir focus sur la portion du host, traduire en adresse pour s’y connecter de façon sécuritaire via différents contrôles crypto, on connait l’adresse ip associée au nom.
+     La prochaine portion sera le protocole afin de savoir ce qu’on veut faire sur cet hôte.
+     L’OS traduit cette demande à travers un appel système.
+  </section>
+
+  <section data-markdown>
+    ## Protocole
+     Sous linux et mac, le fichier  etc/services contient une liste de protocoles et des numéros de ports tcp/udp associés. Les ports statiques sont assignés par IANA.
+     Comme le protocole est https, assigné à 443 udp/tcp, le navigateur va tenter de se connecter à l’adresse ip de l’hôte sur ce port, via un 3-way handshake tcp ou via udp.
+     Une session sécuritaire sera ensuite initialisée.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée
+     Le navigateur envoie une commande client HELO avec de l’information cryptographique sur ce qu’il supporte comme connexion en paramètres.
+     Algorithmes acceptés, versions de protocoles acceptés, longueur de clés.
+     2 familles de protocoles : SSL 1.0 2.0 3.0 et TLS 1.0 1.1 1.2 2.0 ; les familles SSL ne sont plus considérées comme sécuritaires, il est donc recommandé d’utiliser du TLS.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée
+     Le serveur répond également avec un server HELO contenant une décision du choix d’algorithme, choix de protocole et longueur de clé selon ce qu’il accepte de son côté.
+     Si jamais le serveur ne supporte pas les algorithmes / protocoles offerts par le client, il ne peut prendre de décision pour s’entendre sur un protocole de communication et la connexion est tout simplement fermée.
+     La majorité des équipements réseau auraient dû avoir leur firmware mis à jour pour supporter les nouvelles versions TLS  afin d’éviter les erreurs de connexion avec les navigateurs récents.
+     En utilisant une ancienne version de navigateur pour s’y connecter, la connexion n’est pas considérée comme sécure et toute information transmise, y compris les authentifiants, peut être facilement lue si interceptée.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée -- certificat
+     À haut niveau, 3 portions qui serviront à prendre des décisions.  Issued to   toujours généré pour un serveur ou organisation en particulier.  Common name (CN) est le nom du serveur (* pour tous les serveurs du domaine), Organization (O) est la compagnie, Organizational Unit (OU) la division (optionnel).  Les certificats pourraient aussi être générés pour des identités en général, par exemple une personne et on y retrouverait son information.  Cette information est importante car la clé publique sera utilisée pour le chiffrement mais aussi pour valider les signatures.  Il faudra donc valider que le serveur à qui l’on parle est bien celui qu’il devrait être.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée -- certificat
+     La section Issued By contient les informations sur l’autorité émettrice, la source de confiance qui permet de valider que la clé publique reçue bien celle de l’identité clamée.
+     Cette autorité signe le certificat avec sa clé privée.
+     Avec le certificat reçu, le client testera la confiance envers le certificat avant de commencer les requêtes crytpo pour établir la connexion sécurisée.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée -- validation du certificat
+     La première validation se fait sur le CN vs adresse de connexion. Si non, validation du SAN (subject altenate name) est-bon ?
+     Le SAN est une extension de la norme X.509.
+     Originalement, un certificat ne permettait de représenter qu’une seule identité avec un seul nom de serveur ce qui évitait de représenter plusieurs identités avec un certificat trop large et générer des risques de sécurité potentiels.
+     Par contre, avec l’évolution SSL sur internet et un nombre grandissant de serveurs représentant plusieurs sites(identités) distinctes (ex. google.com, youtube.com,  youtu.be google.ca, www.goo.gl, etc), l’extension a été ajoutée.
+     Si le SAN n’est pas bon, la connexion est refusée car l’identité n’a pas été émise pour le serveur auquel on se connecte et c’est effectivement louche...
+     La validation suivant se fait sur la période de validité, si ce n’est pas bon, le certificat est refusé.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée -- validation du certificat
+    Si le CN/SAN sont bons et que la date est valide, la confiance est ensuite validée avec l’émetteur du certificat.
+    Étape 1 : valider la signature du certificat avec la clé publique de l’émetteur (qui a signé avec sa clé privée).
+    Pour voir si l’émetteur est valide, sa clé publique est également émise sous forme de certificat dans une hiérarchie, sous la même forme, et cette chaîne est remontée jusqu’à ce que l’on trouve un émetteur connu.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée -- validation du certificat
+    L’OS et le navigateur sont livrés avec une liste d’autorités de certifications considérées de confiance par défaut et ces listes sont mises à jour régulièrement.
+    On peut vérifier, sur mac, avec Keychain, les certificats des racines de confiance (trust root).
+    Le certificat donne une structure pour définir la chaîne de confiance.  Avant d’inclure un certificat à cette liste, il y a plusieurs validations effectuées.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée -- mécanismes de validation des demandes
+    Il existe une protection des éléments cryptographiques pour ne pas qu’un attaquant génère des certificats au nom de l’autorité.
+    Les métadonnées incluses avec le certificat nous donnent également l’information sur ce qu’il est possible de faire avec le certificat, Key Usage,  notamment signer d’autre certificats ou listes de révocation.
+    Il y a aussi une liste de ce qui peut être signé par l’autorité.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée -- 2-way TLS
+    Dans le HELO serveur, il y a une option pour demander un certificat client, ce qui permet de faire du 1-way ou 2-way tls; généralement cette option n’est pas activée.
+    Plus souvent utilisé dans le cas d’API, communication entre différents services d’une application.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée -- négociation
+    Suite à l’échange de certificat, il y a un processus de négociation afin d’arriver à une entente sur les décisions cryptographique prises par le serveur.
+    Ensuite, le client entame l’établissement de la connexion sécurisée en générant une clé symétrique, aléatoire de longueur préalablement définie, et va la chiffrer avec la clé publique du serveur contenue dans le certificat.
+    Le serveur va déchiffrer ce secret avec sa propre clé privée ce qui permet d’avoir une clé partagée pour chiffrer les données en transit.
+  </section>
+
+  <section data-markdown>
+    ## Session sécurisée -- avantages
+    Si un attaquant se place entre les 2, il ne pourra déchiffrer l’information car il n’a pas la clé privée et il ne pourra non plus envoyer une fausse clé publique car il ne pourra pas avoir le certificat signé adéquatement.
+    La sécurité derrière TLS, protège la confidentialité et l’intégrité tout validant l’identité du serveur.
+    Le serveur envoie une confirmation de réception et le client peut maintenant envoyer des requêtes chiffrées, avec la clé aléatoire, au serveur et celui-ci chiffrera sa réponse avec la même clé.
+  </section>
+
+  <section data-markdown>
+    ### Question :  Est-ce qu'on devrait se soucier des firewalls qui font du ssl inspection ?
+    Fondamentalement ils font une attaque MITM, mais sans causer de problèmes au niveau du browser car l’organisation qui a déployé le firewall a distribué une autorité de certification, sur les postes, qui est connue par le firewall.
+    Le firewall est donc en mesure d’envoyer un certificat valide.
+    Il faut donc faire confiance à l’organisation.
+    En réalité le SSL inspection ne devrait pas exister car ça nous force à accepter un certificat pour contourner les mécanismes de sécurité du protocole.
+  </section>
+
+  <section data-markdown>
+    ### Question :  Est-ce qu'on devrait se soucier des firewalls qui font du ssl inspection ?
+    L’utilité n’est pas seulement de laisser l’organisation espionner nos communications en général mais surtout pour éviter que du code malicieux, à l’interne, puisse établir un canal sécurisé afin d’exfiltrer des données confidentielles ou se connecter à un serveur Command & Control pour ne pas être détecté.
+    Le but du SSL inspection est donc de pouvoir capturer ces communications et les analyser dans le cadre d’un programme de DLP (data loss prevention).
+    Il reste toutefois un risque, surtout si mal configuré, d’accéder à de l’information qui devrait demeurer confidentielle et non-visible par les sysadmin.
+    C’est nécessaire mais ça devrait être désactivé pour la majorité des domaines connus (banque, facebook, twitter, etc) il n’y a aucune raison d’espionner le trafic, à l’exception de raisons légales avec les médias sociaux dans des cadres de conformité.
+  </section>
+
+  <section data-markdown>
+    ### Question :  Est-ce qu'on devrait se soucier des firewalls qui font du ssl inspection ?
+    L’utilité n’est pas seulement de laisser l’organisation espionner nos communications en général mais surtout pour éviter que du code malicieux, à l’interne, puisse établir un canal sécurisé afin d’exfiltrer des données confidentielles ou se connecter à un serveur Command & Control pour ne pas être détecté.
+    Le but du SSL inspection est donc de pouvoir capturer ces communications et les analyser dans le cadre d’un programme de DLP (data loss prevention).
+    Il reste toutefois un risque, surtout si mal configuré, d’accéder à de l’information qui devrait demeurer confidentielle et non-visible par les sysadmin.
+    C’est nécessaire mais ça devrait être désactivé pour la majorité des domaines connus (banque, facebook, twitter, etc) il n’y a aucune raison d’espionner le trafic, à l’exception de raisons légales avec les médias sociaux dans des cadres de conformité.
+  </section>
+
+  <section data-markdown>
+    ### Question :  Est-ce qu'on devrait se soucier des firewalls qui font du ssl inspection ?
+    Pour les domaines qui sont non-catégorisés, on veut s’assurer qu’il n’y a pas de trafic malicieux.
+    Cette liste doit être dynamique et mise à jour souvent.
+    Il ne faut pas nuire à la posture de sécurité de l’entreprise pour faciliter le travail des RH.
+  </section>
+
+  <section data-markdown>
+    ### Question :  Et si une appliacation pouvait déchiffrer toute communication SSL/SSH ?
+    SSL possible car juste à mettre un certificat sur les postes, SSH plus complexe car pas de concept de certificat.
+    Plusieurs entreprises vont simplement bloquer SSH pour ne pas avoir de tunnels encryptés, vers l’extérieur, sans y avoir de visibilité.
+    Possible seulement pour des postes configurés préalablement avec un certificat particulier, sinon ce ne sera pas transparent pour le client et il verra des erreurs.
+  </section>
+
+  <section data-markdown>
+    ### Question :  Est-ce que le choix d'un cypher suite peut donner aucune encryption et est-ce que le cadenas serait tout de même affiché?
+    Oui, dans la liste envoyée par le client ou le serveur, l’algorithme peut être null et la longueur peut être null.
+    Normalement le client devrait être configuré pour refuser cette suite (TLS_NULL_NULL_NULL), par contre si le client l’accepte, le cadenas va tout de même apparaitre dans le navigateur car théoriquement c’est un protocole TLS valide.
+    Attention aux configurations de test.
+  </section>
+</section>
+
+<section>
+  <section data-markdown>
+    ##Génération de certificats.
+
+  </section>
+</section>
+
+<section>
+
+  <section data-markdown>
+    ## Let's Encrypt
+    Problème avec SSL et chiffrement de trafic, généralement dispendieux d’avoir des certificats, autorités doivent valider l’identité des requérants, protéger leurs clés, etc.
+    Vu comme une mine d’or, 4-500$ pour avoir un certificat ce qui limite la capacité des gens à chiffrer leurs données.
+    Le but derrière Let’s Encrypt est de rendre ssl plus accessible.
+    C’est une autorité de certification qui permet, de manière automatisée, gratuite et transparente, de gérer les demandes de certificats et de générer des certificats valides, tant que l’on peut prouver la possession du domaine.
+  </section>
+
+  <section data-markdown>
+    ## Let's Encrypt -- utilisation
+    Démarrer un serveur web et mettre à jour l’entrée dns.
+    Suivre les instructions ici : https://letsencrypt.org/getting-started/ .
+    Pour activer https, il faut un certificat et on peut installer certbot.
+    On entre le nom de domaine, adresse email, accepte les termes et conditions et tout se fait automagiquement.
+  </section>
+
+  <section data-markdown>
+    ## Let's Encrypt -- utilisation
+    Une vérification est faite par Let’s Encrypt afin de s’assurer que nous avons bien le contrôle sur le site pour lequel le certificat est émis.
+    Le serveur Let’s Encrypt envoie un challenge demandant de placer de l’information, chiffrée avec leur clé publique, dans un sous-répertoire donné puis vérifie que la bonne information a bel et bien été placée au bon endroit.
+    Peut aussi servir au niveau DNS.
+    Processus similaire aux preuves d’identité Keybase.io  SSL-cert donne un certificat généré avec une clé connue par tout le monde vs clé privée secrète, pas signé par une autorité de confiance valide; à utiliser seulement pour des tests.
+    On pourrait se générer un certificat auto-signé avec OpenSSL mais il n’y a pas le concept de confiance et c’est là que Let’s Encrypt intervient.
+  </section>
+</section>
+
+<section>
+  <section data-markdown>
+    # À suivre…
   </section>
 </section>

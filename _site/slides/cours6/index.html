@@ -11,37 +11,90 @@
   # Cryptographie appliquée
   ## Cours 6
 </section>
-<section data-markdown>
-  # Demo Vault
-</section>
-<section data-markdown>
-  <section data-markdown>
-    # Cryptographie assymétrique
-  </section>
-  <section data-markdown>
-    ## Qu'est-ce que la cryptographie assymétrique?
 
-    * Utilisation de deux clés: publique et privée
-    * Les données chiffrées avec la clé publique ne peuvent être déchifrées qu'avec la clé privée
-    * Les données chiffrées avec la clé privéee ne peuvent est déchiffrées qu'avec la clé publique
-  </section>
-  <section data-markdown>
-    ## Utilisation: Crypto sans secrets partagé
-  </section>
-  <section data-markdown>
-    ## Utilisation: Signature numérique
-  </section>
-  <section data-markdown>
-    ## Utilisation: authentification
-  </section>
-</section>
 <section data-markdown>
-  # Demo Keybase
+  ## Introduction crypto symétrique
+  En crypto symétrique, les concepts sont très directs, on utilise une même clé pour dé/encrypter des données; la possession de la clé permet de tout faire.
+  Avantages : mettre certains principes autour de la gestion pour la sécuriser, les algorithmes simples de chiffrement symétriques sont extrêmement rapides, implémentation hardware ASMI.
+  Limitations : provenant du fait de n’utiliser qu’une seule clé pour à la fois chiffrer ou déchiffrer.
+  Comment partager des secrets avec un inconnu ou partager sans canal sécuritaire établi préalablement?
 </section>
 
 <section data-markdown>
-  # Utilisation Hybride: TLS
+  ## Introduction crypto asymétrique
+  En symétrique on a seulement besoin d’une série de bits aléatoires selon la longueur de clé désirée, ce qui est assez simple à générer.
+  En asymétrique, 2 clés de même taille sont générées en même temps et sont liées.  Ces séries de bits auront une composante aléatoire et une composante mathématique où les 2 clés répondent à 2 moitiés de la même équation, ce qui les liera.
+  L’équation permet à toute donnée chiffrée par clé A d’être déchiffrée seulement par clé B et vice versa.
+  Ceci permet un mode où l’on publie une clé et on garde l’autre secrète, comparativement à symétrique où la clé unique doit demeurer secrète pour assurer la confidentialité.
 </section>
+
+<section data-markdown>
+  ## Partage de secret
+  Afin de régler la problématique où il n’y a pas de secret partagé préalablement (clé symétrique échangée de manière sécuritaire par exemple), Bob se génère une clé en deux parties, publie le morceau A « public » qui sera disponible pour n’importe qui, via un site web par exemple, et conserve la partie B et la protège; on appellera cette partie la clé « privée ».
+  Comme ce qui est chiffré avec la partie A ne peut être déchiffré qu’avec la partie B, Alice peut prendre son message, le chiffrer avec la partie A de la clé et transmettre à Bob qui sera en mesure de déchiffrer les secret avec la partie B.
+</section>
+
+<section data-markdown>
+  ## Algorithme RSA
+  Existe depuis 1977, premier à être commercialisé, la seule raison pourquoi il est sécuritaire est car certaines opérations mathématiques sont complexes à effectuer par un ordinateur : factorisation d’entiers, prendre un entier et le réduire en ses facteurs, aucun algorithme efficace existe présentement.
+  Les ordinateurs quantiques seraient donc un danger pour la crypto actuelle.
+</section>
+
+
+  <section data-markdown>
+    # Keybase.io
+  </section>
+  <section data-markdown>
+    ## Keybase
+    Keybase.io est un outil pour générer des paires de clés, partager les côtés publics et faire des opérations de crypto.
+    Lors de la création d'un compte, on peut créer une clé ou importer une clé existante.
+    Keybase offre un url public présentant un profil et permet la publication de clés « publiques »; keybase conserve une copie de la clé « privée » associée sur leurs serveurs mais l’encrypte à partir d’un mot de passe, utilisé à titre de clé symétrique ici.
+  </section>
+  <section data-markdown>
+    ## Keybase
+    Keybase fournit également des outils pour faciliter l’utilisation de crypto asymétrique et tenter de résoudre les problèmes d’association à une identité.
+    La signature est une caractéristique intéressante de la crypto asymétrique venant du lien entre les 2 clés; si on peut prendre un message chiffré par A et le déchiffrer avec B, on peut prouver que l’on possède bien la partie B.
+  </section>
+  <section data-markdown>
+    ## Keybase
+    Alice génère sa paire de clés et en rend publique une partie.  Alice chiffre son message avec sa clé privée puis le combine avec le texte clair puis chiffre le tout avec la clé publique du destinatiare, Bob.
+    Bob reçoit un gros bloc qu’il déchiffre avec sa clé privée (confidentialité) puis déchiffre la 2e partie avec la clé publique d’Alice et peut ensuite comparer le contenu et s’assurer  premièrement qu’il peut déchiffrer ce qu’Alice a encrypté avec sa clé privée
+   (identité via possession de clé privée) et que les messages sont identiques (Intégrité).
+  </section>
+
+  <section data-markdown>
+    ## Keybase
+    Concept utilisé pour partager des clés symétriques, mode hybride (ssl), permet ainsi de chiffrer plus économiquement un grand volume de données ou un flux.   La signature peut également être utilisée sans encryption quand le but n’est pas de protéger l’information mais d’en prouver la source et valider l’intégrité des données.
+    Cette caractéristique est souvent utilisée lors du déploiement d’applications.  Afin de pallier à l’usurpation d’identité via une publication malicieuse, on va utiliser des chaînes de signatures et d’autres concepts via keybase; le concept de keybase permet de signer la cle publique de Bob par une tierce partie qui valide son identité,
+    ils appellent ça des followers.
+  </section>
+
+  <section data-markdown>
+    ## Keybase
+    Si on ne connait pas une personne, Bob, mais qu’on connait une autre identité et qu’on lui fait confiance, Carole, qui elle a signé la clé de Bob, on peut augmenter notre confiance envers l’identité de Bob.
+    Un autre principe permet d’augmenter le niveau de confiance à travers d’autres sources d’information reliées à l’identité.  En prouvant la possession d’un compte sur les médias sociaux, un domaine, etc. on permet d’augmenter la confiance dans les 2 sens avec des morceaux d’informations distincts : si on fait déjà confiance au facebook,
+    on peut faire confiance à l’identité sur Keybase et vice versa en publiant une signature générée par keybase avec la clé privée sur le compte en question.
+  </section>
+
+  <section data-markdown>
+    ## Keybase
+    Les signatures peuvent également servir à authentifier un utilisateur à travers un système de challenge/réponse. L’utilisateur demande une connexion (hello) au serveur, celui-ci répond avec un (who are you), l’utilisateur répond avec l’identité réclamée, le serveur démarre le processus d’authentification et communique avec une source de confiance comment connaître l’utilisateur prétendu.
+    L’autorité pourrait répondre avec un hash de mot de passe mais une clé publique est plus forte en matière de sécurité.  Le serveur connait maintenant la clé publique de l’utilisateur et prépare un challenge, 256 bits aléatoires et les envoie à l’utilisateur qui devra le signer avec sa clé privée et renvoyer le tout au serveur; celui-ci sera en mesure de les déchiffrer avec la clé publique qu’il possède et vérifier que les 256 bits envoyés sont bien identiques à ceux demandés par le challenge.
+  </section>
+
+  <section data-markdown>
+    ## SSH avec Google Cloud Platform
+    SSH, chez Google Cloud, utilise une clé enregistrée localement comme autorité de confiance.
+    2-factor avec un token physique fonctionne de cette façon comme autorité de confiance, les clés privées sont stockées sur le token physique et les clés privées sur les serveurs du fournisseur.
+    La rotation des clés asymétriques est plus complexe que symétrique, avec un mode hybride on peut donc éviter d’avoir à toujours changer les clés asymétriques en modifiant les clés symétriques à la place plus souvent car les clés asymétriques ne sont utilisées que pour ouvrir la session.
+  </section>
+
+  <section data-markdown>
+    ## Est-ce comme un certificat ?
+    Un certificat c’est une clé publique avec des métadonnées autour pour comprendre ce qui se passe et facilement distribuer et créer une chaine de confiance, signée par une autorité plus haute.
+    Les applications sont signées avec la clé privée associée au certificat.
+    Nous entrerons dans les certificat plus en détail au cours 8
+  </section>
 </div></div>
   <script src="/assets/revealjs/js/reveal.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/0.96/head.min.js"></script>

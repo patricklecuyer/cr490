@@ -12,51 +12,93 @@ reveal_config:
 <section data-markdown>
   # CR490
   # Cryptographie appliquée
-  ## Cours 2
+  ## Cours 9
 </section>
+
 <section>
   <section data-markdown>
-    # Cryptographie et messagerie
+    ## DNSSEC -- retour
   </section>
+
   <section data-markdown>
-    ## S/MIME
+    ## DNSSEC -- retour
+    Le modèle de DNSSEC dépend d’une confiance envers les racines, pareil pour https/tls envers les autorités de certification.
+    C’est une faiblesse mais rien de mieux pour l’instant.  La manière traditionnelle d’obtenir un certificat est couteuse et lente en plus d’être propice à l’erreur tel que démontré dans l’article suivant.
+    https://arstechnica.com/security/2017/03/google-takes-symantec-to-the-woodshed-for-mis-issuing-30000-https-certs/  .
   </section>
+
   <section data-markdown>
-    ## PGP
-  </section>
-  <section data-markdown>
-    ## OTR
-  </section>
-  <section data-markdown>
-    ## Demo Keybase
-  </section>
-  <section data-markdown>
-    ## Demo Virtru
+    ## DNSSEC -- retour
+     Il y a donc un problème de confiance envers le système : si on ne peut plus faire confiance envers l’autorité de certification, on ne peut plus avoir confiance envers l’identité du serveur auquel on se connecte.
+     Le coût de la certification était également prohibitif dans l’obtention d’une connexion SSL sécurisée pour les sites web d’organisations moins bien nanties.
   </section>
 </section>
+
 <section>
   <section data-markdown>
-    # Infrastructure à clé publique
+    # Let's Encrypt -- suite
+  </section>
+
+  <section data-markdown>
+    ## Let's Encrypt -- suite
+    Le client fourni 3 pièces d’information importantes : courriel (pour savoir qui a demandé le certificat en cas de problèmes), hostname (qui sera le CN) et un mode de challenge pour prouver l’identitité.
+    Il y a 3 modes de challenge DNS-01, HTTP-01 et HTTPS-SNI.
+    Let’s Encrypt va générer des données aléatoires et les signer avec sa clé privée.
+    Dépendant du mode de challenge choisi par le client, ici dans le cas HTTP-01, le serveur envoie les données au client et lui indique de les placer à l’endroit demandé (/.well-known/) qui a une minute pour le faire et confirmer.
+    S’en suit une requête http vers le domaine (http://site.web/.well-known/chemin) et va vérifier le contenu en le déchiffrant. Si le contenu match, un certificat sera généré et envoyé au client.
+    Dans le cas de DNS-01, une entrée dns avec les données chiffrées sera ajoutée à la racine du domaine, avec un délai un peu plus long pour tenir compte de la réplication dns.
   </section>
 </section>
+
 <section>
   <section data-markdown>
-    # HSM
+    ## Let's Encrypt -- Certbot version moins magique
+    https://certbot.eff.org/docs/using.html#certbot-commands
+  </section>
+
+  <section data-markdown>
+      sudo certbot  certonly --standalone --standalone-supported-challenges http-01 –d host.domaine.tld –d host2.domaine.tld -m email@serv.tld --agree-tos
+      host2 sera le SAN.   Pas de wildcard possible car le modèle de confiance tomberait; l’objectif du * était de dispenser les propriétaires de certificat de refaire le processus long et couteux d’une nouvelle demande pour chaque nouvel hôte.
+      Let’s Encrypt donne une option plus avantageuse : rapide, gratuite et fournit une clé différente pour chaque hôte ce qui réduit les risques advenant la compromission d’une clé privée.
+  </section>
+
+  <section data-markdown>
+      Sous Linux, le certificat est placé dans /etc/letsencrypt/live/hote.domaine.tld
+      openssl x509 –in cert.pem –text
+      liste le contenu du certificat.
+      Pour installer le certificat, dans un serveur clean, on utilise la commande
+      certbot install --apache –d host.domaine.tld –d host2.domaine.tld – cert-path /tmp –key /tmp
+  </section>
+
+  <section data-markdown>
+    Dans les log de certbot, on voit la requête vers Let’s Encrypt et la réponse qui contient
+    replay-nonce informationchiffrée
+    qui est l’information à placer sur notre serveur web pour prouver l’identité.
+    On peut aussi voir l’envoi de la confirmation que l’information a été placée et que Let’s Encrypt s’est connecté pour en vérifier le contenu (JSON) puis autoriser ensuite la génération du certificat.
+    C’est ici que la paire de clés sera générée localement ainsi qu’un fichier CSR, une requête de certificat, contenant des métadonnées comme la clé publique et qui sera envoyé à Let’s Encrypt qui nous le retournera, signé, et deviendra le certificat.
+  </section>
+
+  <section data-markdown>
+    Comme le serveur contiendra aussi une clé privée,  il faut la protéger mais pas besoin de faire un chmod car les bons droits sont appliqués par défaut par certbot.
+    Il est recommandé de toujours vérifier les permissions car si quelqu’un réussi à compromettre cette clé privée, il pourrait rediriger le DNS ou faire un MITM.
   </section>
 </section>
+
 <section>
   <section data-markdown>
-    # Protocoles d'authentification
-  </section>
-</section>
-<section>
-  <section data-markdown>
-    # Cryptographie et partage de document
-  </section>
-  <section data-markdown>
-    ## Cryptographie transparente
-  </section>
-  <section data-markdown>
-    ## DRM
-  </section>
+    ## Labo
+
+
+    1. Avec un compte keybase, envoyer un courriel chiffré et signé puis déchiffrer et valider la signature de la réponse.
+    Valider identité d’un compte (facebook, twitter, etc.).
+
+    2. Générer un certificat pour un serveur web avec letsencrypt.
+    Démarrer un serveur web, demander le certificat, valider que le certificat est installé.
+
+    3.  Encryption par enveloppe avce Google Cloud KMS.
+    Générer une clé KMS, installer les outils d’encryption cloud.google.com/kms, générer une clé, chiffrer et déchiffrer un fichier, rotation de clé et valider la rotation.
+
+    4. Déployer Vault
+    Configurer vault backend local, démarrer le serveur, unseal, stocker une clé, seal.
+
 </section>
