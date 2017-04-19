@@ -51,7 +51,10 @@ reveal_config:
         * But du hachage est d’avoir une somme plus petite que les données à valider afin de pouvoir effectuer une validation d’intégrité rapide et fiable.
 
         * Contexte particulier pour MDP, jamais besoin de traiter cette donnée mais seulement de comparer avec celui fourni par le supplicant, on va donc valider l’intégrité du mot de passe en comparant son Hash avec celui stocké donc on a jamais besoin de les stocker tels quels ou de les encrypter de manière réversible, ce qui permet dans ce cas précis d’éviter que les MDP soient fuités.
+      </section>
 
+      <section data-markdown>
+        ## Révision - Hachage
         * Ce qui protège la confidentialité du MDP n’est pas le fait qu’il soit haché mais plutôt le fait qu’il ne soit pas stocké lui-même.
       </section>
 
@@ -68,7 +71,10 @@ reveal_config:
         * Versions de clés et historique pour améliorer flexibilité de la rotation, ne modifie pas la cryptopériode
 
         * NIST dit que si cryptopériode = 0, ne plus l'utiliser car elle n’est plus considérée comme sécurisée.
+      </section>
 
+      <section data-markdown>
+        ## Révision - Gestion de clés et Audit
         * Si on dépasse la cryptopériode les risques de clé compromise sont généralement plus élevés que les risques qu’on accepterait normalement.
 
         * Plus une clé est utilisée souvent, plus elle risque d’être compromise (know cypher text)
@@ -104,7 +110,7 @@ reveal_config:
 
         * Keybase ne gère pas les clés symétriques, seulement partage asymétrique
 
-        # Importance de la sécurisation de la clé privée
+        # Sécurisation de la clé privée
       </section>
 
       <section data-markdown>
