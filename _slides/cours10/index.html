@@ -1,6 +1,6 @@
 ---
-title: Cours 2 - Étude de cas
-description: Introduction à l'utilisation de la cryptographie
+title: Cours 10 -  Conférence  + Suite Certificats
+description:  Conférence encryption chez Google et suite de la théorie
 theme: night
 date: 2017-1-19
 reveal_config:
@@ -14,8 +14,196 @@ reveal_config:
   # Cryptographie appliquée
   ## Cours 10
 </section>
+
+
 <section>
   <section data-markdown>
-    # Étude de cas - Discussion en classe
+    # Conférence encryption chez Google
   </section>
+
+  <section data-markdown>
+    ## Conférence encryption chez Google
+      * Maya Kaczorowski, Gestionnaire de produit sécurité et protection de la vie privée.
+
+      * Twitter @MayaKaczorowski
+  </section>
+
+  <section data-markdown>
+    ## Liens
+      * https://www.theregister.co.uk/2016/02/09/researchers_break_homomorphic_encryption/
+
+      * http://www.infoworld.com/article/2609755/encryption/ibm-s-homomorphic-encryption-could-revolutionize-security.html
+
+      * https://cloud.google.com/security/encryption-at-rest/
+
+      * https://cloud.google.com/security/encryption-at-rest/default-encryption
+
+      * https://cloud.google.com/kms/
+  </section>
+
+  <section data-markdown>
+    ## Liens
+      * https://github.com/google/keyczar
+
+      * https://github.com/google/encrypted-bigquery-client
+
+      * https://security.googleblog.com/2016/07/experimenting-with-post-quantum.html
+  </section>
+
+  <section data-markdown>
+    # Question répondue par PatL
+      ## Dans le cadre d’une hiérarchie à plusieurs niveaux comme chez Google,
+      est-ce qu’il y a une mise en cache ou est-ce qu’il faut remonter jusqu’à la clé racine à chaque opération?
+  </section>
+
+  <section data-markdown>
+    ## Question répondue par PatL
+      Le problème avec la mise en cache est que ça nuit à l’audit d’utilisation de la clé.
+      On veut pouvoir comprendre comment nos clés sont utilisées et pourquoi elles sont utilisées si on veut suivre ce qui se passe avec nos données.
+      Les accès à la clé (key release), permet de s’assurer qu’une personne ayant accès aux données ne pourra pas les réutiliser sans avoir accès à la clé.
+      Bien que les opérations de chiffrement soient peu coûteuses, ce coût peut devenir problématique si on additionne la latence générée à chaque niveau hiérarchique,
+       c’est pourquoi la mise en cache est nécessaire.
+      Comme les clés sont non exportables, on ne va jamais mettre une clé en cache à l’extérieur.
+      Pour conserver un audit clair de comment nos clés sont utilisées, il faudra donc identifier dans quel cas les clés doivent être utilisées.
+  </section>
+
+  <section data-markdown>
+    ## Question répondue par PatL
+       L’endroit où il peut y avoir des problèmes est souvent au niveau des DEK.
+       Si une application utilise souvent une DEK, on peut être tentés de la stocker en mémoire mais ceci permettrait à une autre application d’y avoir également accès sans ajouter d’entrée au journal.
+       Plus la mise en cache se fait haut dans la hiérarchie, plus on est en mesure d’identifier des opérations uniques qui ne seront pas journalisées directement mais le seront ailleurs.
+  </section>
+
+  <section data-markdown>
+    ## Question répondue par PatL
+       La mise en cache pourrait seulement nuire aux ACL sur les clés seulement dans le cas où l’ACL change après que la clé ait été mise en cache,
+       en accordant un accès à des personnes qui ne devraient pas;
+       utiliser des périodes de mise en cache très courte, selon le nombre d’opérations et de la fréquence de changement des ACL.
+       Soit on utilise une temporalité ou un processus invalidant le cache lors de changements aux ACL.
+       Vrai non seulement pour les clés mais pour tout ce qui est mis en cache; au niveau des ACL, journalisation des accès, etc.
+  </section>
+</section>
+
+<section>
+  <section data-markdown>
+    # Certificats - Suite
+  </section>
+
+  <section data-markdown>
+    ## Certificats - Suite
+      * Génération locale, sans autorité, de certificats afin de voir les erreurs et pouvoir comprendre les attaques sur les certificats.
+
+      * Rappel portion publique d’une paire de clé avec métadonnées de contexte et de validation, signée par une autorité de certification.
+
+      * N’importe qui peut signer un certificat mais le fait d’avoir une signature venant d’une autorité de confiance permet de renforcer la notion d’identité.
+  </section>
+
+  <section data-markdown>
+    ## Certificats - Suite
+      * OpenSSL est un outil de base sur Unix permettant les opérations crypto symétrique et asymétriques.
+
+      * On va l’utiliser pour générer une demande certificat, la signer et générer les clés.
+
+      * Pour générer la paire de clés RSA est intéressant seulement car il utilise un problème qui n’a pas été résolu de manière efficace en informatique.
+
+      * Le problème de factorisation de produits de grands nombre premiers pourrait par contre être facilement brisé par l’informatique post quantique.
+
+      * Diffie-Hellman moins lourd mais délaissé à mesure que la capacité de calcul des ordinateurs augmente.
+    </section>
+
+    <section data-markdown>
+      ## Certificats - Suite
+        * 'openssl genrsa –out private.pem 4096'
+
+        * Génère une clé RSA, privée, non-aléatoire; on utilise un générateur de nombres aléatoires pour créer de l’entropie car un algorithme logique est utilisé pour générer la clé.
+
+        * 'openssl rsa –pubout -in private.pem –out public.pem'
+
+        * Avec la clé privée, un algorithme permet de générer le côté public qui sera inséré dans le certificat.
+
+        * 'openssl req -new'
+
+        * Permet de créer une requête de certificat et demande les métadonnées, d’identité principalement :
+        le pays, la ville, organisation, unité, FQDN ou nom, (Snake Oil Co et Internet widgits sont des valeurs par défaut),
+        on pourrait encoder la demande avec un mot de passe afin que la personne signant la demande ait besoin d’en valider la source mais on ne le fera pas ici.
+    </section>
+
+    <section data-markdown>
+      ## Certificats - Suite
+        * Un fichier request.csr représente la requête de certificat contenant la clé publique et les métadonnées entrées.
+
+        * 'openssl x509 –in request.csr –out cert.pem –signkey ./private.pem –days 365'
+
+        * Pour signer la requête, la clé private.pem est la clé privée générée pour servir à l’autorité de certification et non la clé privée associée au certificat.
+
+        * Pour faciliter les choses, on va créer notre autorité de certification pour signer les certifications, normalement fait par l’autorité de certification
+
+        * 'mkdir ca' 'cd ca' 'mkdir certs crl newcerts private'
+
+        * La suite sera vue au Cours 11
+    </section>
+</section>
+
+<section>
+  <section data-markdown>
+    # Extras
+  </section>
+
+  <section data-markdown>
+    # Cas Symantec
+  </section>
+
+  <section data-markdown>
+    ## Cas Symantec
+      * Dans un certificat on voit Owner : this website does not supply ownership information.
+
+      * Il y a quelques années, une extension a été ajoutée aux certificats afin de mentionner qu’une vérification plus forte a été effectuée.
+
+      * Cadenas vert vs cadenas et nom du propriétaire.
+
+      * Pas de différence entre les 2 types d’un point de vue crypto, seulement au niveau des métadonnées, vérification d’identité plus en profondeur.
+  </section>
+
+  <section data-markdown>
+    ## Cas Symantec
+      * 'openssl s_client -connect site.web:443  | openssl x509 -noout -text -dates'
+
+      * Métadonnée L1M vs L1K, c’est une option au niveau de l’autorité de certification.
+
+      * Symantec ne faisait pas de validation pour ce type de certificats L1M et mentionnait un nom de propriétaire, qui semblait correct.
+        alors que nous serions censés avoir une plus grande confiance.
+        Ex un d'site malicieux : méchant-paypal.site.web
+
+      * Question aussi de savoir si ce type de certificat a plus de valeur que celui offert par Let’s Encrypt
+        L1K validant seulement le nom de domaine, si personne ne sait vraiment faire la différence entre les 2.
+  </section>
+
+  <section data-markdown>
+    ## Cas Symantec
+      * Problème avec la façon dont le nom de domaine est assigné et non avec le modèle de Let’s Encrypt même.
+
+      * On a tendance à trop utiliser le nom de domaine ou ce qu’on peut lire dans le nom de domaine comme source d’identité.
+
+      * Le besoin de vérifier à qui on donne le droit d’acheter un domaine devrait-il être la responsabilité du fournisseur de certificat?
+
+      * Ces attaques de phishing auraient pu être effectuées sans SSL et la majorité des gens ne s’en seraient pas rendu compte.
+  </section>
+
+  <section data-markdown>
+    ## Cas Symantec
+      * Il faut éduquer les utilisateurs sur comment prendre des bonnes décisions de sécurité selon l’information fournie par le navigateur,
+        que ce soit un nom de domaine, un certificat, le fait que la connexion soit chiffrée.
+
+      * Le phishing est surtout possible quand n’importe qui va cliquer sur n’importe quel lien, va entrer son mot de passe n’importe où et réutiliser
+        le même mot de passe partout que de l’existence ou non d’un certificat signé pour un domaine malicieux ressemblant au domaine valide.
+  </section>
+
+  <section data-markdown>
+    ## Extras
+      * https://www.bleepingcomputer.com/news/security/14-766-lets-encrypt-ssl-certificates-issued-to-paypal-phishing-sites/
+
+
+      * https://eprint.iacr.org/2010/638.pdf  Enveloppe sur clé asymétrique
+  </section>
+
 </section>
