@@ -1,6 +1,6 @@
 ---
-title: Cours 12 - Étude de cas
-description: Revue d'une étude de cas
+title: Cours 12 - TOR
+description: Anonymat sur internet
 theme: night
 date: 2017-1-19
 reveal_config:
@@ -14,8 +14,81 @@ reveal_config:
   # Cryptographie appliquée
   ## Cours 12
 </section>
+
 <section>
   <section data-markdown>
-    # Laboratoire attaque TLS.
+    # TOR
+  </section>
+
+  <section data-markdown>
+    ## TOR
+      * Permettre de communiquer de manière anonyme sur internet avec des contrôles crypto et un réseau de nœuds.
+
+      * Utilise crypto pour objectifs différents de ce qu’on a vu précédemment soit valider les identités.
+
+      * Peu importe ce qu’on fait sur internet, anonymat difficile.
+
+      * De façon générale, les contrôles et protocoles ne sont pas conçus pour protéger l’identité, TLS renferme une portion de l’information capturable envoyée avant la création du tunnel chiffré.
+    </section>
+
+    <section data-markdown>
+      ## TOR
+        * Même si on a une connexion sécurisée, de l’information est conservée et traçable sur cette connexion.
+
+        * D’un point de vue réseau, ex le FAI, va voir la connexion vers un site et une certaine quantité d’information (nom du serveur, HELO TLS + paramètres) qui pourraient permettre une identification.
+
+        * Protéger contre 4 endroits possibles d'attaque (entre client-isp, isp malicieux, isp-serveur, serveur malicieux)
+      </section>
+
+      <section data-markdown>
+        ## TOR
+        * En analysant l'empreinte de la config SSL et les patterns de sites il y a moyen d’identifier certaines caractéristiques pour classifier le type de navigation.
+
+        * Possible de fingerprinter un appareil mobile via les configurations imparfaites des accéléromètres, pas considéré comme sensible donc pas besoin d’autoriser l’application pour cet accès.
+
+        * Avec une adresse IP, on peut aller sur le site ARIN, www.arin.net , sur WHOIS, et connaitre à qui elles appartiennent et d’autres informations.
+
+        * La personne possédant le serveur peut également avoir une certaine quantité d’information sur les accès.
+      </section>
+
+      <section data-markdown>
+        ## TOR
+        * Avec l’adresse IP on peut monter un dossier sur les activités effectuées.
+
+        * Avec TOR, tout le trafic entre le navigateur et la destination finale sera envoyée à un Nœud TOR, pas directement à la destination.
+
+        * Wireshark, local, ne voit que l’information chiffrée.
+
+        * Tor passe à travers plusieurs nœuds avant de rejoindre l’internet.
+
+        * Les nœuds peuvent savoir une partie de l’information mais pas tout car c’est encapsulé dans le tunnel.
+      </section>
+
+      <section data-markdown>
+        ## TOR
+        * Objectif avec TOR, ne pas savoir où exactement nous nous sommes connectés et, à l’opposé, ne pas savoir qui s’est connecté.
+
+        * Pour obtenir de l’information sur une communication devient extrêmement complexe  car nœuds dans des juridictions différentes.
+
+        * Faciliter la création de nœuds afin de faciliter le contrôle de ces nœuds.
+
+        * Concept hidden services masque la destination, accessible seulement à travers TOR.
+
+        * Utiliser un vpn va seulement changer le premier hop.
+      </section>
+</section>
+
+<section>
+  <section data-markdown>
+    # Extras
+  </section>
+
+  <section data-markdown>
+    ## Extras - liens
+    * https://subgraph.com/sgos/
+
+    * https://www.torproject.org/docs/tor-hidden-service.html.en
+
+    * http://tvo.org/video/documentaries/down-the-deep-dark-web
   </section>
 </section>
