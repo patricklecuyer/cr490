@@ -123,7 +123,10 @@ reveal_config:
         * 'openssl rsa –pubout -in private.pem –out public.pem'
 
         * Avec la clé privée, un algorithme permet de générer le côté public qui sera inséré dans le certificat.
+    </section>
 
+    <section data-markdown>
+        ## Certificats - Suite
         * 'openssl req -new'
 
         * Permet de créer une requête de certificat et demande les métadonnées, d’identité principalement :
@@ -173,12 +176,10 @@ reveal_config:
 
       * Métadonnée L1M vs L1K, c’est une option au niveau de l’autorité de certification.
 
-      * Symantec ne faisait pas de validation pour ce type de certificats L1M et mentionnait un nom de propriétaire, qui semblait correct.
-        alors que nous serions censés avoir une plus grande confiance.
+      * Symantec ne faisait pas de validation pour ce type de certificats L1M et mentionnait un nom de propriétaire, qui semblait correct, alors que nous serions censés avoir une plus grande confiance.
         Ex un d'site malicieux : méchant-paypal.site.web
 
-      * Question aussi de savoir si ce type de certificat a plus de valeur que celui offert par Let’s Encrypt
-        L1K validant seulement le nom de domaine, si personne ne sait vraiment faire la différence entre les 2.
+      * Question aussi de savoir si ce type de certificat a plus de valeur que celui offert par Let’s Encrypt, L1K validant seulement le nom de domaine, si personne ne sait vraiment faire la différence entre les 2.
   </section>
 
   <section data-markdown>
@@ -194,11 +195,9 @@ reveal_config:
 
   <section data-markdown>
     ## Cas Symantec
-      * Il faut éduquer les utilisateurs sur comment prendre des bonnes décisions de sécurité selon l’information fournie par le navigateur,
-        que ce soit un nom de domaine, un certificat, le fait que la connexion soit chiffrée.
+      * Il faut éduquer les utilisateurs sur comment prendre des bonnes décisions de sécurité selon l’information fournie par le navigateur, que ce soit un nom de domaine, un certificat, le fait que la connexion soit chiffrée.
 
-      * Le phishing est surtout possible quand n’importe qui va cliquer sur n’importe quel lien, va entrer son mot de passe n’importe où et réutiliser
-        le même mot de passe partout que de l’existence ou non d’un certificat signé pour un domaine malicieux ressemblant au domaine valide.
+      * Le phishing est surtout possible quand n’importe qui va cliquer sur n’importe quel lien, va entrer son mot de passe n’importe où et réutiliser le même mot de passe partout que de l’existence ou non d’un certificat signé pour un domaine malicieux ressemblant au domaine valide.
   </section>
 
   <section data-markdown>
