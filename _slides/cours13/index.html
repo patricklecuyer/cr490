@@ -1,0 +1,154 @@
+---
+title: Cours 13 - Révision
+description: Pour l'examen final
+theme: night
+date: 2017-1-19
+reveal_config:
+  controls: true
+  progress: true
+  transition: slide
+  slideNumber: true
+---
+<section data-markdown>
+  # CR490
+  # Cryptographie appliquée
+  ## Cours 13
+</section>
+
+<section>
+  <section data-markdown>
+    # Révision
+  </section>
+
+  <section data-markdown>
+    ## Révision - concepts
+      * Contrôles crypto selon contextes CID-AAA
+
+      * Intégrité via hachage et signature
+
+      * Authentification avec clé publique privée
+
+      * Audit pour valider intégrité des logs (pas intégrité car les logs sont des métadonnées et non données elles-mêmes)
+
+      * Autorisation pas de validation mais prise de décision, plus rare, moins de gains d’avoir contrôles crypto.
+    </section>
+
+    <section data-markdown>
+      ## Révision - chiffrement
+        * 3 types de chiffrement
+
+        * Au repos
+
+        * En transit (2 portions d’un système mais souvent réseau)
+
+        * En utilisation
+      </section>
+
+      <section data-markdown>
+        ## Révision - Hachage
+        * Mot de passe est le seul cas où le hachage peut protéger la confidentialité à cause de l’opération de comparaison et non de stockage.
+
+        * But du hachage est d’avoir une somme plus petite que les données à valider afin de pouvoir effectuer une validation d’intégrité rapide et fiable.
+
+        * Contexte particulier pour MDP, jamais besoin de traiter cette donnée mais seulement de comparer avec celui fourni par le supplicant, on va donc valider l’intégrité du mot de passe en comparant son Hash avec celui stocké donc on a jamais besoin de les stocker tels quels ou de les encrypter de manière réversible, ce qui permet dans ce cas précis d’éviter que les MDP soient fuités.
+
+        * Ce qui protège la confidentialité du MDP n’est pas le fait qu’il soit haché mais plutôt le fait qu’il ne soit pas stocké lui-même.
+      </section>
+
+      <section data-markdown>
+        ## Révision - Gestion de clés et Audit
+        * Comprendre les techniques
+
+        * Audit permet une traçabilité des opérations, chaine de possession des données.
+
+        * Concept de Cryptopériode
+
+        * Cadres réglementaires peuvent spécifier éléments de gestion de clé (renseignements personnels, paiements)
+
+        * Versions de clés et historique pour améliorer flexibilité de la rotation, ne modifie pas la cryptopériode
+
+        * NIST dit que si cryptopériode = 0, ne plus l'utiliser car elle n’est plus considérée comme sécurisée.
+
+        * Si on dépasse la cryptopériode les risques de clé compromise sont généralement plus élevés que les risques qu’on accepterait normalement.
+
+        * Plus une clé est utilisée souvent, plus elle risque d’être compromise (know cypher text)
+      </section>
+
+      <section data-markdown>
+        ## Révision - Chiffrement par enveloppe
+        * Hiérarchie de clé, Cryptomodule avec clé non exportable.
+
+        * Protéger les clés
+
+        * Rotation de KEK = chiffrement des DEK seulement
+
+        * Utile pour chiffrement au repos symétrique.  Problématique de gestion de clé vs chiffrement pur
+      </section>
+
+      <section data-markdown>
+        ## Révision - Vault
+        * Seal et Unseal, encryption par enveloppe et stockage sur disque chiffré avec un masterkey
+
+        * Pas un cryptomodule donc ne peut pas stocker la masterkey sécuritairement sur disque, sépare en parties avec un seuil nécessaire pour reconstruire la clé maitresse.
+
+        * Software Guard Extension (SGX) pour chiffrer les données en mémoire, root of trust dans le processeur lui-même
+
+        * Pour chiffrement en utilisation, surtout dans un cadre multi tenant, possible cacher des données du FSI également si on ne lui fait pas confiance.
+
+        * Utile non seulement pour les données mais pour le code de traitement, algorithmes, qui peuvent être propriétaire, refléter la stratégie d’affaire de l’entreprise, etc.
+      </section>
+
+      <section data-markdown>
+        ## Révision - Algorithmes Symétriques ou Asymétriques
+        * Performance, protocoles hybrides.
+
+        * Keybase ne gère pas les clés symétriques, seulement partage asymétrique
+
+        # Importance de la sécurisation de la clé privée
+      </section>
+
+      <section data-markdown>
+        ## Révision - DNSSEC
+        * Augmenter la confiance envers réponse DNS
+
+        * Protège du dns poisonning (ajouter des fausses réponses au cache local) spécifiquement
+
+        * Fichier .hosts, cache, … chaine DNS
+
+        * Endroits où on peut instaurer des contrôles crypto pour sécuriser la chaine, outre DNSSEC
+
+        * Modèle de confiance
+
+        * Signature de zones et remonter jusqu’à la racine
+      </section>
+
+      <section data-markdown>
+        ## Révision - Certificats
+        * Mécanisme de certification, signature du certificat la même pour autorité de confiance vs tierce.
+
+        * Certificat dans https
+
+        * Validation http Let’s encrypt avec insertion d’un fichier signé
+
+        * Durée de vie 3 mois pour réduire le risque d’un domaine compromis ayant un certificat valide
+
+        * OpenSSL et certification
+
+        * Contenu du fichier CSR de demande de certificat.
+
+        * Certificat = métadonnées + clé publique
+      </section>
+
+      <section data-markdown>
+        ## Révision - Habiletés
+        * Comprendre protocole https et Handshake TLS.
+
+        * Concept Perfect forward secrecy : compromission de clé actuelle n’affecte pas les chiffrements passés
+
+        * Pouvoir définir et ou comparer deux concepts
+
+        * Expliquer une séquence dans un diagramme de séquence
+
+        * Pouvoir suggérer une protection ou un contrôle cryptographique approprié à une situation donnée
+      </section>
+</section>
